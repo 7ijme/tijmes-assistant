@@ -14,3 +14,5 @@ I'd advise using something like `pm2` to keep the node process running while doi
 
 ## Contributing
 If you have cool ideas or find a bug, you're free to create a pull request!
+##
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tijme)
