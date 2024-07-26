@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../Interfaces";
 import axios from "axios";
+import dotenv from "dotenv";
 
 export const command = new Command({
   category: "utility",
@@ -28,15 +29,9 @@ export const command = new Command({
       description: `I will remind you about \`${reminder.value}\` in ${time}`,
     });
 
-    // fetch("https://tijmevh.nl:8080/reminder", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     At: time,
-    //   },
-    //   body: reminder.value as string,
-    // });
-    axios.post("https://tijmevh.nl:8080/reminder", reminder.value, {
+
+    dotenv.config()
+    axios.post(process.env.NTFY_REMINDER, reminder.value, {
       headers: {
         Title: "Reminder",
         At: time,
