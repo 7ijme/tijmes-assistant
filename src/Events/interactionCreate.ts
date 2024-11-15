@@ -117,11 +117,11 @@ CommandInteraction.prototype.sendEmbed = async function (
           title: options.title,
           description: options.description,
           color:
-            (options?.color as number) ||
+            (options?.color as number) ??
             parseInt(
               ((this as CommandInteraction).client as Client).config
                 .defaultColor,
-            ) ||
+            ) ??
             0x00ff00,
           author: options.author || {
             name: (this as CommandInteraction).user.username,

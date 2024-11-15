@@ -23,6 +23,7 @@ export const command = new Command({
 
     if (!interaction.options.get("code")?.value) return;
 
+		let color;
     let code = (interaction.options.get("code").value as string)
       .replace(/^((\`\`\`){1}(js|javascript)?)\n?/gi, "")
       .replace(/\n?(\`\`\`)$/gi, "");
@@ -60,6 +61,7 @@ export const command = new Command({
           .join("\n")}\`\`\``,
         components: silent ? [] : [actionRow],
         client,
+				color,
         ephemeral: silent,
       });
     } catch (e) {
