@@ -1,21 +1,21 @@
 // add integration_types to type CommandData
-declare module "@discordjs/core" {
+declare module "discord.js" {
   interface RESTPostAPIChatInputApplicationCommandsJSONBody {
     integration_types: number[];
     contexts: number[];
   }
 }
-import { REST } from "@discordjs/rest";
-import { readdirSync } from "fs";
-import path from "path";
-import { clientID } from "./config.json";
-import { API, RESTPutAPIApplicationCommandsJSONBody } from "@discordjs/core";
-import { Command } from "./Interfaces";
-import { CommandData } from "./Interfaces/Command";
+import { REST } from "discord.js";
+import { readdirSync } from "node:fs";
+import path from "node:path";
+import { clientID } from "./config.json" with { type: "json" };
+import { API, RESTPutAPIApplicationCommandsJSONBody } from "discord.js";
+import { Command } from "./Interfaces/index.ts";
 import dotenv from "dotenv";
+import { CommandData } from "./Interfaces/Command.ts";
 
 export async function main() {
-	dotenv.config();
+  dotenv.config();
   const rest = new REST({ version: "10" }).setToken(process.env.TOKEN!);
 
   /* Commands */
@@ -23,13 +23,13 @@ export async function main() {
   const commandPath = path.join(__dirname, ".", "Commands");
   for (const dir of readdirSync(commandPath)) {
     const commandFiles = readdirSync(`${commandPath}/${dir}`).some((file) =>
-      file.endsWith(".js")
+      file.endsWith(".js"),
     )
       ? readdirSync(`${commandPath}/${dir}`).filter((file) =>
-          file.endsWith(".js")
+          file.endsWith(".js"),
         )
       : readdirSync(`${commandPath}/${dir}`).filter((file) =>
-          file.endsWith(".ts")
+          file.endsWith(".ts"),
         );
 
     for (const file of commandFiles) {
@@ -52,7 +52,7 @@ export async function main() {
   const api = new API(rest);
   const result = await api.applicationCommands.bulkOverwriteGlobalCommands(
     clientID,
-    commandsData as RESTPutAPIApplicationCommandsJSONBody
+    commandsData as RESTPutAPIApplicationCommandsJSONBody,
   );
 
   console.log(`Successfully registered application commands. ${result.length}`);
