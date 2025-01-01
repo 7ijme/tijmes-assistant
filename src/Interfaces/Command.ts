@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { SlashCommandBuilder, SlashCommandOptionsOnlyBuilder } from "@discordjs/builders";
 import {
   ActionRowBuilder,
   Attachment,
@@ -41,7 +41,7 @@ export interface CommandOptions {
 export type CommandData = Omit<
   SlashCommandBuilder,
   "addSubcommand" | "addSubcommandGroup"
->;
+> | SlashCommandOptionsOnlyBuilder;
 
 interface Run {
   (client?: Client, command?: CommandInteraction): void;

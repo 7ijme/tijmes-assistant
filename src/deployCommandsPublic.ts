@@ -9,7 +9,7 @@ import { REST } from "@discordjs/rest";
 import { readdirSync } from "fs";
 import path from "path";
 import { clientID } from "./config.json";
-import { API } from "@discordjs/core";
+import { API, RESTPutAPIApplicationCommandsJSONBody } from "@discordjs/core";
 import { Command } from "./Interfaces";
 import { CommandData } from "./Interfaces/Command";
 import dotenv from "dotenv";
@@ -52,7 +52,7 @@ export async function main() {
   const api = new API(rest);
   const result = await api.applicationCommands.bulkOverwriteGlobalCommands(
     clientID,
-    commandsData
+    commandsData as RESTPutAPIApplicationCommandsJSONBody
   );
 
   console.log(`Successfully registered application commands. ${result.length}`);

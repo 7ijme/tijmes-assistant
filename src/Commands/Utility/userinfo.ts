@@ -30,11 +30,11 @@ export const command = new Command({
       option.setName("silent").setDescription("Silently execute"),
     ),
   run: async (client, interaction) => {
-    const user = interaction.options.getUser("user") || interaction.user;
+    const user = interaction.options.get("user").user || interaction.user;
 
-    const hasMentioned = !!interaction.options.getUser("user");
+    const hasMentioned = !!interaction.options.get("user").user;
     const member = hasMentioned
-      ? interaction.options.getMember("user")
+      ? interaction.options.get("user").member
       : interaction.member;
 
     const silent = !!interaction.options.get("silent");
