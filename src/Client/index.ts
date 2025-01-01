@@ -1,4 +1,4 @@
-import { ActivityType, Client, Collection } from "npm:discord.js";
+import { ActivityType, Client, Collection, REST, Routes } from "npm:discord.js";
 import { Command, Config, Event } from "../Interfaces/index.ts";
 import ConfigJson from "../config.json" with { type: "json" };
 import path from "node:path";
@@ -37,13 +37,29 @@ export default class ExtendedClient extends Client {
       }
     }
 
+    const token = process.env.TOKEN as string;
+
+    try {
+      const rest = new REST({ version: "10" }).setToken(token);
+      await rest.put(Routes.applicationCommands(ConfigJson.clientID), {
+        body: this.commands.map((v) => {
+          const commandBuilder = v.data.toJSON();
+          commandBuilder.integration_types = [1];
+          commandBuilder.contexts = [0, 1, 2];
+          return commandBuilder;
+        }),
+      });
+    } catch (e) {
+      console.error(JSON.stringify(e));
+    }
+
     /* Events */
     const eventPath = path.join(dirname, "..", "Events");
     const events = Deno.readDirSync(eventPath);
 
     for (const file of events) {
       if (!file.name.endsWith(".ts")) continue;
-	  console.log(file.name);
+      console.log(file.name);
       const event: Event = (await import(`${eventPath}/${file.name}`))?.event;
       this.events.set(event.name, event);
       this.on(event.name, event.run.bind(null, this));
@@ -52,7 +68,6 @@ export default class ExtendedClient extends Client {
     console.log("Commands and events loaded!");
 
     // Public commands
-    const token = process.env.TOKEN;
     await this.login(token);
     console.log("Bot is online!");
 

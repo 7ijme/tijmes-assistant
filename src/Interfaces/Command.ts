@@ -44,7 +44,7 @@ export type CommandData = Omit<
 > | SlashCommandOptionsOnlyBuilder;
 
 interface Run {
-  (client?: Client, command?: CommandInteraction): void;
+  (client: Client, command: CommandInteraction): void;
 }
 
 export type Category = "info" | "developer" | "fun" | "settings" | "utility";
@@ -66,7 +66,7 @@ export interface CommandReplyEmbedOptions {
   thumbnail?: EmbedImageData | null;
   fields?: EmbedField[] | null;
   url?: string | null;
-  timestamp?: number | null;
+  timestamp?: string | null;
   error?: boolean | null;
   content?: string | null;
   files?: Attachment[];

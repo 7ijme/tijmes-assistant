@@ -6,7 +6,11 @@ import {
   EmbedBuilder,
   Interaction,
 } from "discord.js";
-import { Event, Command, CommandReplyEmbedOptions } from "../Interfaces/index.ts";
+import {
+  Event,
+  Command,
+  CommandReplyEmbedOptions,
+} from "../Interfaces/index.ts";
 import Client from "../Client/index.ts";
 
 function createDiscordTimestamp() {
@@ -114,8 +118,8 @@ CommandInteraction.prototype.sendEmbed = async function (
     await (this as CommandInteraction).reply({
       embeds: [
         new EmbedBuilder({
-          title: options.title,
-          description: options.description,
+          title: options.title || "",
+          description: options.description || "",
           color:
             (options?.color as number) ??
             parseInt(
@@ -129,22 +133,22 @@ CommandInteraction.prototype.sendEmbed = async function (
               forceStatic: false,
             }),
           },
-          timestamp: options.timestamp || Date.now(),
-          image: options.image,
-          thumbnail: options.thumbnail,
-          fields: options.fields,
-          url: options.url,
-          footer: options.footer,
+          timestamp: options.timestamp || Date.now().toString(),
+          image: options.image || undefined,
+          thumbnail: options.thumbnail || undefined,
+          fields: options.fields || [],
+          url: options.url || undefined,
+          footer: options.footer || undefined,
         }),
       ],
       components: options.components || [],
-      content: options.content,
+      content: options.content || "",
       files: options.files,
       allowedMentions: options.mentions || { repliedUser: false },
       ephemeral: options.ephemeral || false,
     });
   } catch (e) {
     console.log(e);
-    return null;
+    return;
   }
 };
