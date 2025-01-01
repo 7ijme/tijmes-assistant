@@ -1,8 +1,7 @@
-import { Command } from "../../Interfaces";
-import { inspect } from "util";
-import { EmbedBuilder, SlashCommandBuilder } from "@discordjs/builders";
+import { Command } from "../../Interfaces/index.ts";
+import { EmbedBuilder, SlashCommandBuilder } from "npm:@discordjs/builders";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import { exec } from "child_process";
+import { exec } from "node:child_process";
 
 export const command = new Command({
   category: "developer",

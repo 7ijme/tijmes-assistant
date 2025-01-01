@@ -1,3 +1,3 @@
-import Client from "./Client/index";
+import Client from "./Client/index.ts";
 
 new Client().init();

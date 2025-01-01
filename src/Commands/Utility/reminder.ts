@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import { Command } from "../../Interfaces";
+import { Command } from "../../Interfaces/index.ts";
 import axios from "axios";
 import dotenv from "dotenv";
 

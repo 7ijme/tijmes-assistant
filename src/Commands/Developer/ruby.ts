@@ -1,8 +1,8 @@
-import { Command } from "../../Interfaces";
-import { inspect } from "util";
-import { EmbedBuilder, SlashCommandBuilder } from "@discordjs/builders";
+import { Command } from "../../Interfaces/index.ts";
+import { inspect } from "node:util";
+import { EmbedBuilder, SlashCommandBuilder } from "npm:@discordjs/builders";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import { exec } from "child_process";
+import { exec } from "node:child_process";
 
 export const command = new Command({
   category: "developer",
@@ -43,30 +43,33 @@ export const command = new Command({
     await interaction.deferReply({ ephemeral: silent });
 
     try {
-      exec(`echo ${stdin} | ruby -e '${code}'`, async (error, stdout, stderr) => {
-        const hasError = !!error;
-        const result = stdout || error.message || stderr || "No output";
-        console.log(result);
-        console.log(inspect({ stdout, stderr }));
+      exec(
+        `echo ${stdin} | ruby -e '${code}'`,
+        async (error, stdout, stderr) => {
+          const hasError = !!error;
+          const result = stdout || error.message || stderr || "No output";
+          console.log(result);
+          console.log(inspect({ stdout, stderr }));
 
-        const embed = new EmbedBuilder()
-          .setTitle("Ruby")
-          .setDescription(
-            `**Input**\n\`\`\`rb\n${code}\`\`\`\n**Output**\`\`\`rb\n${result}\`\`\``,
-          )
-          .setColor(hasError ? 0xff0000 : 0x00ff00)
-          .setTimestamp();
+          const embed = new EmbedBuilder()
+            .setTitle("Ruby")
+            .setDescription(
+              `**Input**\n\`\`\`rb\n${code}\`\`\`\n**Output**\`\`\`rb\n${result}\`\`\``,
+            )
+            .setColor(hasError ? 0xff0000 : 0x00ff00)
+            .setTimestamp();
 
-        interaction.editReply({
-          embeds: [embed],
-          components: silent ? [] : [actionRow],
-        });
-      });
+          interaction.editReply({
+            embeds: [embed],
+            components: silent ? [] : [actionRow],
+          });
+        },
+      );
     } catch (e) {
       const embed = new EmbedBuilder()
         .setTitle("Ruby")
         .setDescription(
-          `**Input**\n\`\`\`rb\n${code}\`\`\`\n**Output**\`\`\`rb\n${result}\`\`\``,
+          `${stdin.length ? `**STDIN**\n\`\`\` \`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code}\`\`\`\n**Output**\`\`\`rb\n${result}\`\`\``,
         )
         .setColor(0xff0000)
         .setTimestamp();

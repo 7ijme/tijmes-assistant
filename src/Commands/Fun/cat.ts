@@ -1,7 +1,7 @@
-import { SlashCommandBuilder } from "discord.js";
-import { Command } from "../../Interfaces";
-import { Category, TheCatAPI } from "@thatapicompany/thecatapi";
-import dotenv from "dotenv";
+import { SlashCommandBuilder } from "npm:discord.js";
+import { Command } from "../../Interfaces/index.ts";
+import { Category, TheCatAPI } from "npm:@thatapicompany/thecatapi";
+import dotenv from "npm:dotenv";
 
 export const command = new Command({
   category: "fun",
@@ -23,9 +23,9 @@ export const command = new Command({
           { name: "Boxes", value: Category.BOXES.valueOf() },
           { name: "Ties", value: Category.TIES.valueOf() },
           { name: "Sinks", value: Category.SINKS.valueOf() },
-          { name: "Clothes", value: Category.CLOTHES.valueOf() }
+          { name: "Clothes", value: Category.CLOTHES.valueOf() },
         )
-        .setRequired(false)
+        .setRequired(false),
     ),
   // HATS = 1,
   // SPACE = 2,
@@ -37,6 +37,11 @@ export const command = new Command({
 
   run: async (client, interaction) => {
     dotenv.config();
+    if (!process.env.CAT_API)
+      return interaction.sendEmbed({
+        description:
+          "The bot owner has not set the CAT_API environment variable.",
+      });
     const theCatAPI = new TheCatAPI(process.env.CAT_API);
 
     const category =
@@ -54,6 +59,9 @@ export const command = new Command({
     const image = await theCatAPI.images.getRandomImage({
       categories: category ? [category] : undefined,
     });
+
+    if (!image)
+      return interaction.sendEmbed({ description: "No image found." });
 
     await interaction.sendEmbed({
       title: `Cat ${category ? `(${Category[category].toLowerCase()})` : ""}`,

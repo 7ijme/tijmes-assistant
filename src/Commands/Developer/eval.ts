@@ -1,7 +1,7 @@
-import { Command } from "../../Interfaces";
-import { inspect } from "util";
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { Command } from "../../Interfaces/index.ts";
+import { SlashCommandBuilder } from "npm:@discordjs/builders";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { inspect } from "node:util";
 
 export const command = new Command({
   category: "developer",

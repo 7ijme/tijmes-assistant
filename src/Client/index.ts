@@ -1,9 +1,8 @@
-import { ActivityType, Client, Collection } from "discord.js";
-import { Command, Config, Event } from "../Interfaces";
-import ConfigJson from "../config.json";
-import dotenv from "dotenv";
-import { readdirSync } from "fs";
-import path from "path";
+import { ActivityType, Client, Collection } from "npm:discord.js";
+import { Command, Config, Event } from "../Interfaces/index.ts";
+import ConfigJson from "../config.json" with { type: "json" };
+import path from "node:path";
+import dotenv from "npm:dotenv";
 
 export default class ExtendedClient extends Client {
   public commands: Collection<string, Command> = new Collection();
@@ -19,55 +18,53 @@ export default class ExtendedClient extends Client {
   public async init() {
     console.log("Bot is starting...");
 
-		console.log("Loading commands and events...");
+    console.log("Loading commands and events...");
+    dotenv.config();
     /* Commands */
-    const commandPath = path.join(__dirname, "..", "Commands");
-    for (const dir of readdirSync(commandPath)) {
-      const commands = readdirSync(`${commandPath}/${dir}`).some((file) =>
-        file.endsWith(".js"),
-      )
-        ? readdirSync(`${commandPath}/${dir}`).filter((file) =>
-            file.endsWith(".js"),
-          )
-        : readdirSync(`${commandPath}/${dir}`).filter((file) =>
-            file.endsWith(".ts"),
-          );
-
+    const dirname = import.meta.dirname || ".";
+    const commandPath = path.join(dirname, "..", "Commands");
+    console.log(commandPath);
+    for (const dir of Deno.readDirSync(commandPath)) {
+      const commands = Deno.readDirSync(`${commandPath}/${dir.name}`);
       for (const file of commands) {
-        const command: Command = (await import(`${commandPath}/${dir}/${file}`))
-          ?.command;
+        console.log(file.name);
+        if (!file.name.endsWith(".ts")) continue;
+        const command: Command = (
+          await import(`${commandPath}/${dir.name}/${file.name}`)
+        )?.command;
         if (!command) continue;
         command.init(this);
       }
     }
 
     /* Events */
-    const eventPath = path.join(__dirname, "..", "Events");
-    const events = readdirSync(eventPath).some((file) => file.endsWith(".js"))
-      ? readdirSync(eventPath).filter((file) => file.endsWith(".js"))
-      : readdirSync(eventPath).filter((file) => file.endsWith(".ts"));
+    const eventPath = path.join(dirname, "..", "Events");
+    const events = Deno.readDirSync(eventPath);
 
     for (const file of events) {
-      const event: Event = (await import(`${eventPath}/${file}`))?.event;
+      if (!file.name.endsWith(".ts")) continue;
+	  console.log(file.name);
+      const event: Event = (await import(`${eventPath}/${file.name}`))?.event;
       this.events.set(event.name, event);
       this.on(event.name, event.run.bind(null, this));
     }
 
-		console.log("Commands and events loaded!");
+    console.log("Commands and events loaded!");
 
     // Public commands
-		dotenv.config();
-    await this.login(process.env.TOKEN);
-		console.log("Bot is online!");
+    const token = process.env.TOKEN;
+    await this.login(token);
+    console.log("Bot is online!");
 
-		this.user.setPresence({
-			status: "online",
-			activities: [
-				{
-					name: `to my master's commands`,
-					type: ActivityType.Listening,
-				},
-			],
-		});
+    if (!this.user) return;
+    this.user.setPresence({
+      status: "online",
+      activities: [
+        {
+          name: `to my master's commands`,
+          type: ActivityType.Listening,
+        },
+      ],
+    });
   }
 }

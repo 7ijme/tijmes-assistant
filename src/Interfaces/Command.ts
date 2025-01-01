@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, SlashCommandOptionsOnlyBuilder } from "@discordjs/builders";
+import { SlashCommandBuilder, SlashCommandOptionsOnlyBuilder } from "npm:@discordjs/builders";
 import {
   ActionRowBuilder,
   Attachment,
@@ -8,10 +8,10 @@ import {
   EmbedFooterOptions,
   EmbedImageData,
   MessageMentionOptions,
-} from "discord.js";
-import ExtendedClient from "../Client/index";
-import Client from "../Client/index";
-import { ButtonBuilder } from "discord.js";
+} from "npm:discord.js";
+import ExtendedClient from "../Client/index.ts";
+import Client from "../Client/index.ts";
+import { ButtonBuilder } from "npm:discord.js";
 
 export class Command {
   usage: string;
@@ -49,7 +49,7 @@ interface Run {
 
 export type Category = "info" | "developer" | "fun" | "settings" | "utility";
 
-declare module "discord.js" {
+declare module "npm:discord.js" {
   interface CommandInteraction {
     sendEmbed(options: CommandReplyEmbedOptions): Promise<void>;
   }

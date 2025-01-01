@@ -6,7 +6,7 @@ import {
   PermissionsBitField,
   SlashCommandBuilder,
 } from "discord.js";
-import { Command } from "../../Interfaces";
+import { Command } from "../../Interfaces/index.ts";
 
 declare module "discord.js" {
   interface APIInteractionDataResolvedGuildMember {

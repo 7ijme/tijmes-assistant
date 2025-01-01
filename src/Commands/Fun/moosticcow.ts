@@ -1,6 +1,6 @@
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
 import { SlashCommandBuilder } from "discord.js";
-import { Command } from "../../Interfaces";
+import { Command } from "../../Interfaces/index.ts";
 
 export const command = new Command({
   category: "fun",

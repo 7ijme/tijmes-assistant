@@ -1,3 +1,4 @@
-export { Event } from "./Event";
-export { Command, Category, CommandReplyEmbedOptions } from "./Command";
-export { Config } from "./Config";
+export { Event } from "./Event.ts";
+export { Command } from "./Command.ts";
+export type { Category, CommandReplyEmbedOptions } from "./Command.ts";
+export type { Config } from "./Config.ts";

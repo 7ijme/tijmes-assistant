@@ -4,7 +4,7 @@ import {
   ButtonStyle,
   SlashCommandBuilder,
 } from "discord.js";
-import { Command } from "../../Interfaces";
+import { Command } from "../../Interfaces/index.ts";
 
 export const command = new Command({
   category: "utility",

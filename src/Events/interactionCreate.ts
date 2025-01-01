@@ -6,8 +6,8 @@ import {
   EmbedBuilder,
   Interaction,
 } from "discord.js";
-import { Event, Command, CommandReplyEmbedOptions } from "../Interfaces";
-import Client from "../Client";
+import { Event, Command, CommandReplyEmbedOptions } from "../Interfaces/index.ts";
+import Client from "../Client/index.ts";
 
 function createDiscordTimestamp() {
   return `<t:${Math.floor(Date.now() / 1000)}:R>`;
