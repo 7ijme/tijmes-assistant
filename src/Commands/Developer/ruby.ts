@@ -22,14 +22,13 @@ export const command = new Command({
     .addBooleanOption((option) =>
       option.setName("silent").setDescription("Silently execute"),
     ),
-  run: async (client, interaction) => {
-    const code = interaction.options.get("code").value as string;
+  run: async (_client, interaction) => {
+    const code = interaction.options.get("code")?.value as string;
     if (code.trim() === "") return;
 
     const stdin = (interaction.options.get("stdin")?.value as string) || "";
 
     const silent = !!interaction.options.get("silent")?.value;
-    let result: string = "";
 
     const button = new ButtonBuilder()
       .setLabel("Delete")
@@ -47,7 +46,7 @@ export const command = new Command({
         `echo ${stdin} | ruby -e '${code}'`,
         async (error, stdout, stderr) => {
           const hasError = !!error;
-          const result = stdout || error.message || stderr || "No output";
+          const result = stdout || error?.message || stderr || "No output";
           console.log(result);
           console.log(inspect({ stdout, stderr }));
 
@@ -59,17 +58,17 @@ export const command = new Command({
             .setColor(hasError ? 0xff0000 : 0x00ff00)
             .setTimestamp();
 
-          interaction.editReply({
+          await interaction.editReply({
             embeds: [embed],
             components: silent ? [] : [actionRow],
           });
         },
       );
-    } catch (e) {
+    } catch (_e) {
       const embed = new EmbedBuilder()
         .setTitle("Ruby")
         .setDescription(
-          `${stdin.length ? `**STDIN**\n\`\`\` \`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code}\`\`\`\n**Output**\`\`\`rb\n${result}\`\`\``,
+          `${stdin.length ? `**STDIN**\n\`\`\` \`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code}\`\`\`\n**Output**\`\`\`rb\n${"An error occured"}\`\`\``,
         )
         .setColor(0xff0000)
         .setTimestamp();

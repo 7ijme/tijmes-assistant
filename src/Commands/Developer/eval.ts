@@ -23,8 +23,7 @@ export const command = new Command({
 
     if (!interaction.options.get("code")?.value) return;
 
-    let color: number;
-    let code = (interaction.options.get("code").value as string)
+    const code = (interaction.options.get("code")?.value as string)
       .replace(/^((\`\`\`){1}(js|javascript)?)\n?/gi, "")
       .replace(/\n?(\`\`\`)$/gi, "");
 
@@ -61,15 +60,14 @@ export const command = new Command({
           .join("\n")}\`\`\``,
         components: silent ? [] : [actionRow],
         client,
-        color,
         ephemeral: silent,
       });
-    } catch (e) {
+    } catch (e: any) {
       await interaction.sendEmbed({
         client,
         title: "Eval",
         description: `An error occured: \`\`\`js\n${e.name}: ${
-          e.message
+          e.message as string
         }\nLine: ${
           e.stack.match(/<anonymous>:\d:\d/)?.[0].match(/\d:\d/)?.[0]
         }\`\`\``,

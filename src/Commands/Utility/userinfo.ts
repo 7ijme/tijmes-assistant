@@ -2,14 +2,12 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  PermissionFlagsBits,
-  PermissionsBitField,
   SlashCommandBuilder,
 } from "discord.js";
 import { Command } from "../../Interfaces/index.ts";
 
 declare module "discord.js" {
-  interface APIInteractionDataResolvedGuildMember {
+  interface GuildMember {
     joined_at: Date;
   }
 }
@@ -29,12 +27,12 @@ export const command = new Command({
     .addBooleanOption((option) =>
       option.setName("silent").setDescription("Silently execute"),
     ),
-  run: async (client, interaction) => {
-    const user = interaction.options.get("user").user || interaction.user;
+  run: (_client, interaction) => {
+    const user = interaction.options.get("user")?.user || interaction.user;
 
-    const hasMentioned = !!interaction.options.get("user").user;
+    const hasMentioned = !!interaction.options.get("user")?.user;
     const member = hasMentioned
-      ? interaction.options.get("user").member
+      ? interaction.options.get("user")?.member
       : interaction.member;
 
     const silent = !!interaction.options.get("silent");
@@ -66,8 +64,7 @@ export const command = new Command({
       fields.push(
         {
           name: "Joined At",
-          //@ts-ignore
-          value: `<t:${Math.floor(new Date(member.joined_at).getTime() / 1000)}:R>`,
+          value: `<t:${Math.floor(new Date(member?.joined_at).getTime() / 1000)}:R>`,
           inline: true,
         },
         {

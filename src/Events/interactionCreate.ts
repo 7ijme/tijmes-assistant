@@ -133,7 +133,7 @@ CommandInteraction.prototype.sendEmbed = async function (
               forceStatic: false,
             }),
           },
-          timestamp: options.timestamp || Date.now().toString(),
+          timestamp: options.timestamp || new Date().toISOString(),
           image: options.image || undefined,
           thumbnail: options.thumbnail || undefined,
           fields: options.fields || [],

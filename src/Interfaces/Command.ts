@@ -26,7 +26,7 @@ export class Command {
     this.data = options.data;
   }
 
-  public async init(client: Client) {
+  public init(client: Client) {
     client.commands.set(this.data.name, this);
   }
 }

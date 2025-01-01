@@ -19,7 +19,7 @@ export const command = new Command({
       option.setName("silent").setDescription("Silently execute"),
     ),
   run: async (client, interaction) => {
-    let code = (interaction.options.get("command").value as string)
+    const code = (interaction.options.get("command")?.value as string)
       .replace(/^((\`\`\`){1}(sh|bash)?)\n?/gi, "")
       .replace(/\n?(\`\`\`)$/gi, "");
     if (code.trim() === "") return;
@@ -27,7 +27,6 @@ export const command = new Command({
     console.log(code);
 
     const silent = !!interaction.options.get("silent")?.value;
-    let result: string = "";
 
     const button = new ButtonBuilder()
       .setLabel("Delete")
@@ -43,7 +42,7 @@ export const command = new Command({
     try {
       exec(code, async (error, stdout, stderr) => {
         const hasError = !!error;
-        const result = stdout || error.message || stderr || "No output";
+        const result = stdout || error?.message || stderr || "No output";
 
         const embed = new EmbedBuilder()
           .setTitle("Term")
@@ -53,18 +52,16 @@ export const command = new Command({
           .setColor(hasError ? 0xff0000 : 0x00ff00)
           .setTimestamp();
 
-        interaction.editReply({
+        await interaction.editReply({
           embeds: [embed],
           components: silent ? [] : [actionRow],
         });
       });
-
-      console.log("then", result);
-    } catch (e) {
+    } catch (_e) {
       const embed = new EmbedBuilder()
         .setTitle("Term")
         .setDescription(
-          `**Input**\n\`\`\`sh\n${code}\`\`\`\n**Output**\`\`\`sh\n${result}\`\`\``,
+          `**Input**\n\`\`\`sh\n${code}\`\`\`\n**Output**\`\`\`sh\n${"An error occuered"}\`\`\``,
         )
         .setColor(0xff0000)
         .setTimestamp();

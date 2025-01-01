@@ -23,7 +23,6 @@ export default class ExtendedClient extends Client {
     /* Commands */
     const dirname = import.meta.dirname || ".";
     const commandPath = path.join(dirname, "..", "Commands");
-    console.log(commandPath);
     for (const dir of Deno.readDirSync(commandPath)) {
       const commands = Deno.readDirSync(`${commandPath}/${dir.name}`);
       for (const file of commands) {

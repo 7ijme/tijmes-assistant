@@ -35,7 +35,7 @@ export const command = new Command({
   // SINKS = 14,
   // CLOTHES = 15
 
-  run: async (client, interaction) => {
+  run: async (_client, interaction) => {
     dotenv.config();
     if (!process.env.CAT_API)
       return interaction.sendEmbed({

@@ -22,16 +22,21 @@ export const command = new Command({
         .setRequired(false),
     ),
   run: async (_, interaction) => {
-    const reminder = interaction.options.get("reminder");
+    const reminder = interaction.options.get("reminder")?.value as string;
     const time = (interaction.options.get("time")?.value as string) || "1 hour";
     interaction.sendEmbed({
       title: "Reminder",
-      description: `I will remind you about \`${reminder.value}\` in ${time}`,
+      description: `I will remind you about \`${reminder}\` in ${time}`,
     });
 
+    if (!process.env.NTFY_REMINDER)
+      return interaction.sendEmbed({
+        description:
+          "The bot owner has not set the NTFY_REMINDER environment variable.",
+      });
 
-    dotenv.config()
-    axios.post(process.env.NTFY_REMINDER, reminder.value, {
+    dotenv.config();
+    axios.post(process.env.NTFY_REMINDER, reminder, {
       headers: {
         Title: "Reminder",
         At: time,

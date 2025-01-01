@@ -40,13 +40,13 @@ export const command = new Command({
     .addRoleOption((option) =>
       option.setName("role").setDescription("The role to ping"),
     ),
-  run: async (client, interaction) => {
-    const code = interaction.options.get("code").value as string;
+  run: (_client, interaction) => {
+    const code = interaction.options.get("code")?.value as string;
     const players = (interaction.options.get("players")?.value as number) || 1;
     const region =
       (interaction.options.get("region")?.value as string) || "MNA";
     const map = (interaction.options.get("map")?.value as string) || "Polus";
-		const role = interaction.options.get("role")?.value as string;
+    const role = interaction.options.get("role")?.value as string;
 
     const minBtn = new ButtonBuilder()
       .setStyle(ButtonStyle.Primary)

@@ -27,7 +27,7 @@ export const command = new Command({
     .addBooleanOption((option) =>
       option.setName("silent").setDescription("Silently execute"),
     ),
-  run: async (client, interaction) => {
+  run: (_client, interaction) => {
     const user = interaction.options.get("user")?.user || interaction.user;
 
     const silent = !!interaction.options.get("silent");

@@ -11,7 +11,7 @@ export const command = new Command({
       option.setName("who").setDescription("Who to insult?").setRequired(false),
     ),
 
-  run: async (client, interaction) => {
+  run: async (_client, interaction) => {
     const who = interaction.options.get("who")?.value as string;
 
     const insult = await (await fetch(
