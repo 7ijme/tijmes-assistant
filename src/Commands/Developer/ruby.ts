@@ -43,7 +43,7 @@ export const command = new Command({
     await interaction.deferReply({ ephemeral: silent });
 
     try {
-      exec(`echo ${stdin} | ruby -e ${code}`, async (error, stdout, stderr) => {
+      exec(`echo ${stdin} | ruby -e '${code}'`, async (error, stdout, stderr) => {
         const hasError = !!error;
         const result = stdout || error.message || stderr || "No output";
         console.log(result);
