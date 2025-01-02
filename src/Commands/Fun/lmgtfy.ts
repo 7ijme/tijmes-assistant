@@ -35,22 +35,22 @@ export const command = new Command({
     ),
   run: async (_client, interaction) => {
     const query = interaction.options.get("query")?.value as string;
-	const engine = (interaction.options.get("engine")?.value as string) || "g";
+    const engine = (interaction.options.get("engine")?.value as string) || "g";
     const link = `https://lmgtfy2.com/?q=${encodeURIComponent(query)}&iie=${interaction.options.get("internet")?.value ? 1 : 0}&s=${engine}`;
 
-	const longEngine = {
-	  g: "Google",
-	  b: "Bing",
-	  d: "DuckDuckGo",
-	  y: "Yahoo",
-	  k: "Ask",
-	  a: "AOL",
-	  c: "ChatGPT",
-	}[engine];
+    const longEngine = {
+      g: "Google",
+      b: "Bing",
+      d: "DuckDuckGo",
+      y: "Yahoo",
+      k: "Ask",
+      a: "AOL",
+      c: "ChatGPT",
+    }[engine];
 
     await interaction.sendEmbed({
       title: `Let me ${longEngine} that for you`,
-      description: `I'll help you use the internet. Click [here](<${link}>).`,
+      description: `You asked me "${query}"\nHow the fuck am I supposed to know? I'll help you use the internet. Click [here](<${link}>).`,
     });
   },
 });
