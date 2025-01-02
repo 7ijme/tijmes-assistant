@@ -26,7 +26,7 @@ export const command = new Command({
     const code = interaction.options.get("code")?.value as string;
     if (code.trim() === "") return;
 
-    const stdin = (interaction.options.get("stdin")?.value as string) || "";
+    const stdin = (interaction.options.get("stdin")?.value as string).replaceAll("\\n","\n") || "";
 
     const silent = !!interaction.options.get("silent")?.value;
 
@@ -40,10 +40,10 @@ export const command = new Command({
     );
 
     await interaction.deferReply({ ephemeral: silent });
-
+	console.log(stdin);
     try {
       exec(
-        `echo ${stdin} | ruby -e '${code}'`,
+        `echo "${stdin}" | ruby -e '${code}'`,
         async (error, stdout, stderr) => {
           const hasError = !!error;
           const result = stdout || error?.message || stderr || "No output";
@@ -53,7 +53,7 @@ export const command = new Command({
           const embed = new EmbedBuilder()
             .setTitle("Ruby")
             .setDescription(
-              `**Input**\n\`\`\`rb\n${code}\`\`\`\n**Output**\`\`\`rb\n${result}\`\`\``,
+              `${stdin.length ? `**STDIN**\n\`\`\`\n${stdin}\`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code}\`\`\`${code.length} bytes\n**Output**\`\`\`rb\n${result}\`\`\``,
             )
             .setColor(hasError ? 0xff0000 : 0x00ff00)
             .setTimestamp();
@@ -68,7 +68,7 @@ export const command = new Command({
       const embed = new EmbedBuilder()
         .setTitle("Ruby")
         .setDescription(
-          `${stdin.length ? `**STDIN**\n\`\`\` \`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code}\`\`\`\n**Output**\`\`\`rb\n${"An error occured"}\`\`\``,
+          `**Input**\n\`\`\`rb\n${code}\`\`\`\n**Output**\`\`\`rb\n${"An error occured"}\`\`\``,
         )
         .setColor(0xff0000)
         .setTimestamp();
