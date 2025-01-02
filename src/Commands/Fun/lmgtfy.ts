@@ -50,7 +50,8 @@ export const command = new Command({
 
     await interaction.sendEmbed({
       title: `Let me ${longEngine} that for you`,
-      description: `You asked me "${query}"\nHow the fuck am I supposed to know? I'll help you use the internet. Click [here](<${link}>).`,
+      description: `You asked me "**${query}**"\n\nHow the fuck am I supposed to know?\nI'll help you use the internet. Click [here](<${link}>).`,
+      url: link,
     });
   },
 });
