@@ -40,7 +40,7 @@ export default class ExtendedClient extends Client {
 
     try {
       const rest = new REST({ version: "10" }).setToken(token);
-      await rest.put(Routes.applicationCommands(ConfigJson.clientID), {
+      await rest.put(Routes.applicationCommands(process.env.CLIENT_ID as string || ""), {
         body: this.commands.map((v) => {
           const commandBuilder = v.data.toJSON();
           commandBuilder.integration_types = [1];

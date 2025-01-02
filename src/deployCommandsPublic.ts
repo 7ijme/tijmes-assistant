@@ -8,7 +8,6 @@ declare module "discord.js" {
 import { REST } from "discord.js";
 import { readdirSync } from "node:fs";
 import path from "node:path";
-import { clientID } from "./config.json" with { type: "json" };
 import { API, RESTPutAPIApplicationCommandsJSONBody } from "discord.js";
 import { Command } from "./Interfaces/index.ts";
 import dotenv from "dotenv";
