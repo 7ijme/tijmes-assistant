@@ -47,8 +47,8 @@ export const command = new Command({
     const engine = (interaction.options.get("engine")?.value as string) || "g";
     const link = `https://lmgtfy2.com/?q=${encodeURIComponent(query)}&iie=${interaction.options.get("internet")?.value ? 1 : 0}&s=${engine}`;
     const user = interaction.options.get("user")?.user;
-    const userMention = user ? `<@${user.id}> ` : "";
-    const embed = interaction.options.get("embed")?.value ?? true;
+    const userMention = user ? `<@${user.id}>` : "";
+    const embed = interaction.options.get("embed")?.value ?? false;
 
     const longEngine = {
       g: "Google",
@@ -69,7 +69,7 @@ export const command = new Command({
       });
     } else {
       await interaction.reply({
-        content: `Use ${longEngine}${userMention ? `, ${userMention}` : ""} <${link}>`,
+        content: `Use ${longEngine}${userMention ? `, ${userMention}` : ""} [google.com/search?q=${query.replace(/ /g, "+")}](<${link}>)`,
       });
     }
   },
