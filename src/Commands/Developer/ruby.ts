@@ -40,7 +40,6 @@ export const command = new Command({
     );
 
     await interaction.deferReply({ ephemeral: silent });
-	console.log(stdin);
     try {
       exec(
         `echo "${stdin}" | ruby -e '${code}'`,
