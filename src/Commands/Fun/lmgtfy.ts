@@ -32,11 +32,23 @@ export const command = new Command({
           { name: "AOL", value: "a" },
           { name: "ChatGPT", value: "c" },
         ]),
+    )
+    .addUserOption((option) =>
+      option.setName("user").setDescription("The user you're sending this to"),
+    )
+    .addBooleanOption((option) =>
+      option
+        .setName("embed")
+        .setDescription("Whether to send an embed")
+        .setRequired(false),
     ),
   run: async (_client, interaction) => {
     const query = interaction.options.get("query")?.value as string;
     const engine = (interaction.options.get("engine")?.value as string) || "g";
     const link = `https://lmgtfy2.com/?q=${encodeURIComponent(query)}&iie=${interaction.options.get("internet")?.value ? 1 : 0}&s=${engine}`;
+    const user = interaction.options.get("user")?.user;
+    const userMention = user ? `<@${user.id}> ` : "";
+    const embed = interaction.options.get("embed")?.value ?? true;
 
     const longEngine = {
       g: "Google",
@@ -48,10 +60,17 @@ export const command = new Command({
       c: "ChatGPT",
     }[engine];
 
-    await interaction.sendEmbed({
-      title: `Let me ${longEngine} that for you`,
-      description: `You asked me "**${query}**"\n\nHow the fuck am I supposed to know?\nI'll help you use the internet. Click [here](<${link}>).`,
-      url: link,
-    });
+    if (embed) {
+      await interaction.sendEmbed({
+        title: `Let me ${longEngine} that for you`,
+        description: `You asked me "**${query}**"\n\nHow the fuck am I supposed to know?\nI'll help you use the internet. Click [here](<${link}>).`,
+        url: link,
+        content: userMention,
+      });
+    } else {
+      await interaction.reply({
+        content: `Use ${longEngine}${userMention ? `, ${userMention}` : ""} <${link}>`,
+      });
+    }
   },
 });
