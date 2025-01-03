@@ -106,3 +106,4 @@ build
 # TernJS port file
 .tern-port
 package-lock.json
+deno.lock

@@ -18,7 +18,7 @@ export const command = new Command({
     .addBooleanOption((option) =>
       option.setName("silent").setDescription("Silently execute"),
     ),
-  run: async (client, interaction) => {
+  run: async (_client, interaction) => {
     const code = (interaction.options.get("command")?.value as string)
       .replace(/^((\`\`\`){1}(sh|bash)?)\n?/gi, "")
       .replace(/\n?(\`\`\`)$/gi, "");

@@ -26,7 +26,11 @@ export const command = new Command({
     const code = interaction.options.get("code")?.value as string;
     if (code.trim() === "") return;
 
-    const stdin = (interaction.options.get("stdin")?.value as string).replaceAll("\\n","\n") || "";
+    const stdin =
+      (interaction.options.get("stdin")?.value as string)?.replaceAll(
+        "\\n",
+        "\n",
+      ) || "";
 
     const silent = !!interaction.options.get("silent")?.value;
 
@@ -52,7 +56,7 @@ export const command = new Command({
           const embed = new EmbedBuilder()
             .setTitle("Ruby")
             .setDescription(
-              `${stdin.length ? `**STDIN**\n\`\`\`\n${stdin}\`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code}\`\`\`${code.length} bytes\n**Output**\`\`\`rb\n${result}\`\`\``,
+              `${stdin.length ? `**STDIN**\n\`\`\`\n${stdin}\`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code.trim()}\`\`\`${code.length} bytes\n**Output**\`\`\`rb\n${result.trim() || "Empty, just like my heart"}\`\`\``,
             )
             .setColor(hasError ? 0xff0000 : 0x00ff00)
             .setTimestamp();
