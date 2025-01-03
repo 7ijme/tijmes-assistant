@@ -69,7 +69,7 @@ export const command = new Command({
       });
     } else {
       await interaction.reply({
-        content: `Use ${longEngine}${userMention ? `, ${userMention}` : ""} [google.com/search?q=${query.replace(/ /g, "+")}](<${link}>)`,
+        content: `Use ${longEngine}${userMention ? `, ${userMention}` : ""} [${longEngine?.toLowerCase()}.com/search?q=${query.replace(/ /g, "+")}](<${link}>)`,
       });
     }
   },
