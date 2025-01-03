@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from "npm:discord.js";
 import { Command } from "../../Interfaces/index.ts";
 import { Category, TheCatAPI } from "npm:@thatapicompany/thecatapi";
-import dotenv from "npm:dotenv";
 
 export const command = new Command({
   category: "fun",
@@ -36,13 +35,13 @@ export const command = new Command({
   // CLOTHES = 15
 
   run: async (_client, interaction) => {
-    dotenv.config();
-    if (!process.env.CAT_API)
+	const catAPIToken = Deno.env.get("CAT_API");
+    if (!catAPIToken)
       return interaction.sendEmbed({
         description:
           "The bot owner has not set the CAT_API environment variable.",
       });
-    const theCatAPI = new TheCatAPI(process.env.CAT_API);
+    const theCatAPI = new TheCatAPI(catAPIToken);
 
     const category =
       (interaction.options.get("category")?.value as number) ||

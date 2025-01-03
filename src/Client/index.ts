@@ -2,7 +2,6 @@ import { ActivityType, Client, Collection, REST, Routes } from "npm:discord.js";
 import { Command, Config, Event } from "../Interfaces/index.ts";
 import ConfigJson from "../config.json" with { type: "json" };
 import path from "node:path";
-import dotenv from "npm:dotenv";
 
 export default class ExtendedClient extends Client {
   public commands: Collection<string, Command> = new Collection();
@@ -19,7 +18,6 @@ export default class ExtendedClient extends Client {
     console.log("Bot is starting...");
 
     console.log("Loading commands and events...");
-    dotenv.config();
     /* Commands */
     const dirname = import.meta.dirname || ".";
     const commandPath = path.join(dirname, "..", "Commands");
@@ -36,11 +34,15 @@ export default class ExtendedClient extends Client {
       }
     }
 
-    const token = process.env.TOKEN as string;
+    const token = Deno.env.get("TOKEN");
+    if (!token) throw new Error("No token provided");
+
+    const clientId = Deno.env.get("CLIENT_ID");
+    if (!clientId) throw new Error("No client ID provided");
 
     try {
       const rest = new REST({ version: "10" }).setToken(token);
-      await rest.put(Routes.applicationCommands(process.env.CLIENT_ID as string || ""), {
+      await rest.put(Routes.applicationCommands(clientId), {
         body: this.commands.map((v) => {
           const commandBuilder = v.data.toJSON();
           commandBuilder.integration_types = [1];

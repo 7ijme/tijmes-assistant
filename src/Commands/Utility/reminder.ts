@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../Interfaces/index.ts";
 import axios from "axios";
-import dotenv from "dotenv";
 
 export const command = new Command({
   category: "utility",
@@ -21,7 +20,7 @@ export const command = new Command({
         .setDescription("How long to wait before reminding you")
         .setRequired(false),
     ),
-  run: async (_, interaction) => {
+  run: (_, interaction) => {
     const reminder = interaction.options.get("reminder")?.value as string;
     const time = (interaction.options.get("time")?.value as string) || "1 hour";
     interaction.sendEmbed({
@@ -29,14 +28,14 @@ export const command = new Command({
       description: `I will remind you about \`${reminder}\` in ${time}`,
     });
 
-    if (!process.env.NTFY_REMINDER)
+	const ntfyURL = Deno.env.get("NTFY_REMINDER");
+    if (!ntfyURL)
       return interaction.sendEmbed({
         description:
           "The bot owner has not set the NTFY_REMINDER environment variable.",
       });
 
-    dotenv.config();
-    axios.post(process.env.NTFY_REMINDER, reminder, {
+    axios.post(ntfyURL, reminder, {
       headers: {
         Title: "Reminder",
         At: time,
