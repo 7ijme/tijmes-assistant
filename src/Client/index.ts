@@ -2,6 +2,7 @@ import { ActivityType, Client, Collection, REST, Routes } from "npm:discord.js";
 import { Command, Config, Event } from "../Interfaces/index.ts";
 import ConfigJson from "../config.json" with { type: "json" };
 import path from "node:path";
+import "jsr:@std/dotenv/load";
 
 export default class ExtendedClient extends Client {
   public commands: Collection<string, Command> = new Collection();
