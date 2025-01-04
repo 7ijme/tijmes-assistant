@@ -23,8 +23,10 @@ export const command = new Command({
       option.setName("silent").setDescription("Silently execute"),
     ),
   run: async (_client, interaction) => {
-    const code = interaction.options.get("code")?.value as string;
-    if (code.trim() === "") return;
+    const code = (interaction.options.get("code")?.value as string)
+      .trim()
+      .replaceAll("\\n", "\n");
+    if (code === "") return;
 
     const stdin =
       (interaction.options.get("stdin")?.value as string)?.replaceAll(
@@ -56,7 +58,7 @@ export const command = new Command({
           const embed = new EmbedBuilder()
             .setTitle("Ruby")
             .setDescription(
-              `${stdin.length ? `**STDIN**\n\`\`\`\n${stdin}\`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code.trim()}\`\`\`${code.length} bytes\n**Output**\`\`\`rb\n${result.trim() || "Empty, just like my heart"}\`\`\``,
+              `${stdin.length ? `**STDIN**\n\`\`\`\n${stdin}\`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code}\`\`\`${code.length} bytes\n**Output**\`\`\`rb\n${result.trim() || "Empty, just like my heart"}\`\`\``,
             )
             .setColor(hasError ? 0xff0000 : 0x00ff00)
             .setTimestamp();
