@@ -51,7 +51,7 @@ export type Category = "info" | "developer" | "fun" | "settings" | "utility";
 
 declare module "npm:discord.js" {
   interface CommandInteraction {
-    sendEmbed(options: CommandReplyEmbedOptions, edit?: boolean): Promise<InteractionResponse | void>;
+    sendEmbed(options: CommandReplyEmbedOptions, edit?: boolean): Promise<InteractionResponse | void | Message>;
   }
 }
 

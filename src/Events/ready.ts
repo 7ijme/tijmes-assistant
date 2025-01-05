@@ -60,9 +60,8 @@ export const event: Event = new Event({
             // interaction too old to edit
             await interaction.sendEmbed(
               {
-                title: "Restarted!",
-                description: "The bot has succesfully restarted.",
-                ephemeral: true,
+                title: "Restart",
+                description: "The bot has succesfully restarted",
               },
               true,
             );

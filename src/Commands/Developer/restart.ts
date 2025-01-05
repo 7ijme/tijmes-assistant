@@ -9,9 +9,8 @@ export const command = new Command({
     .setDescription("Restart the bot"),
   run: async (client, interaction) => {
     await interaction.sendEmbed({
-      title: "Restarting...",
+      title: "Restart",
       description: "The bot is restarting...",
-      ephemeral: true,
       color: 0xffff00,
     });
 
