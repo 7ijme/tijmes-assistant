@@ -79,7 +79,7 @@ export default class ExtendedClient extends Client {
       const ohandle = b.handle;
       const a = new Proxy(ohandle, {
         apply(target, thisArg, argArray) {
-          if (argArray[0].data.name == "restart") {
+          if (argArray[0]?.data?.name == "restart") {
             Deno.writeTextFileSync(
               "/tmp/tijmes-assistant.json",
               JSON.stringify(argArray),
