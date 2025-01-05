@@ -11,7 +11,8 @@ export const command = new Command({
     await interaction.sendEmbed({
       title: "Restarting...",
       description: "The bot is restarting...",
-	  ephemeral: true,
+      ephemeral: true,
+      color: 0xffff00,
     });
 
     Deno.exit();

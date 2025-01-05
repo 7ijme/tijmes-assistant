@@ -111,6 +111,7 @@ export const event: Event = new Event({
 
 CommandInteraction.prototype.sendEmbed = async function (
   options: CommandReplyEmbedOptions,
+  edit?: boolean,
 ) {
   if (!(this as CommandInteraction).isRepliable()) return;
 
@@ -124,7 +125,7 @@ CommandInteraction.prototype.sendEmbed = async function (
       button,
     );
 
-    return await (this as CommandInteraction).reply({
+    return await (this as CommandInteraction)[edit ? "editReply" : "reply"]({
       embeds: [
         new EmbedBuilder({
           title: options.title || "",
