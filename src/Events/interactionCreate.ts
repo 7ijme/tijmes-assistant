@@ -152,7 +152,9 @@ CommandInteraction.prototype.sendEmbed = async function (
       ],
       components:
         options.components ||
-        ((options.deleteButton ?? true) ? [actionRow] : []),
+        (!options.ephemeral && (options.deleteButton ?? true)
+          ? [actionRow]
+          : []),
       content: options.content || "",
       files: options.files,
       allowedMentions: options.mentions || { repliedUser: false },
