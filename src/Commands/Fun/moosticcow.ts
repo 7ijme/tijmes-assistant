@@ -14,7 +14,7 @@ export const command = new Command({
 
     await interaction.sendEmbed({
       title: `Moostic Cow`,
-      description: `\`\`\`${message}\`\`\``,
+      description: `\`\`\`${message.stdout}\`\`\``,
     });
   },
 });
