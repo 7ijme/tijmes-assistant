@@ -12,6 +12,7 @@ export const command = new Command({
   run: async (client, interaction) => {
     const message = execSync("fortune | cowsay", { encoding: "utf-8" });
 
+    console.log(message);
     await interaction.sendEmbed({
       title: `Moostic Cow`,
       description: `\`\`\`${message}\`\`\``,
