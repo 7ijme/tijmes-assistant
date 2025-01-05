@@ -32,22 +32,13 @@ export const command = new Command({
 
     const silent = !!interaction.options.get("silent");
 
-    const button = new ButtonBuilder()
-      .setLabel("Delete")
-      .setStyle(ButtonStyle.Danger)
-      .setCustomId(`DELETE-${interaction.user.id}`);
-
-    const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
-      button,
-    );
-
     interaction.sendEmbed({
       title: user.globalName,
       image: {
         url: user.displayAvatarURL({ size: 4096, extension: "png" }),
       },
       ephemeral: silent,
-      components: silent ? [] : [actionRow],
+      deleteButton: !silent,
     });
   },
 });
