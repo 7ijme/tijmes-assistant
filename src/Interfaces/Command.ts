@@ -51,7 +51,7 @@ export type Category = "info" | "developer" | "fun" | "settings" | "utility";
 
 declare module "npm:discord.js" {
   interface CommandInteraction {
-    sendEmbed(options: CommandReplyEmbedOptions): Promise<void>;
+    sendEmbed(options: CommandReplyEmbedOptions): Promise<InteractionResponse | void>;
   }
 }
 
@@ -72,5 +72,6 @@ export interface CommandReplyEmbedOptions {
   files?: Attachment[];
   mentions?: MessageMentionOptions;
   components?: ActionRowBuilder<ButtonBuilder>[];
+  deleteButton?: boolean;
   ephemeral?: boolean;
 }

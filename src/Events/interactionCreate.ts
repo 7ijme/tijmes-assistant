@@ -115,7 +115,16 @@ CommandInteraction.prototype.sendEmbed = async function (
   if (!(this as CommandInteraction).isRepliable()) return;
 
   try {
-    await (this as CommandInteraction).reply({
+    const button = new ButtonBuilder()
+      .setLabel("Delete")
+      .setStyle(ButtonStyle.Danger)
+      .setCustomId(`DELETE-${this.user.id}`);
+
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().setComponents(
+      button,
+    );
+
+    return await (this as CommandInteraction).reply({
       embeds: [
         new EmbedBuilder({
           title: options.title || "",
@@ -141,7 +150,9 @@ CommandInteraction.prototype.sendEmbed = async function (
           footer: options.footer || undefined,
         }),
       ],
-      components: options.components || [],
+      components:
+        options.components ||
+        ((options.deleteButton ?? true) ? [actionRow] : []),
       content: options.content || "",
       files: options.files,
       allowedMentions: options.mentions || { repliedUser: false },
