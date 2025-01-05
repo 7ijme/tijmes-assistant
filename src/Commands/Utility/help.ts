@@ -29,7 +29,7 @@ export const command = new Command({
         name: category.charAt(0).toUpperCase() + category.slice(1),
         value: commands
           .map((command) => {
-            return `</${command.data.name}:${fetchedCommands?.find((c) => c.name == command.data.name)?.id}> \`${
+            return `- </${command.data.name}:${fetchedCommands?.find((c) => c.name == command.data.name)?.id}> \`${
               command.data.options
                 .map((option) => {
                   return option.toJSON().required
