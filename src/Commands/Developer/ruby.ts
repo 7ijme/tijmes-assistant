@@ -58,8 +58,9 @@ export const command = new Command({
           const embed = new EmbedBuilder()
             .setTitle("Ruby")
             .setDescription(
-              `${stdin.length ? `**STDIN**\n\`\`\`\n${stdin}\`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code}\`\`\`\n-# ${code.length} bytes\n\n**Output**\`\`\`rb\n${result.trim() || "Empty, just like my heart"}\`\`\``,
+              `${stdin.length ? `**STDIN**\n\`\`\`\n${stdin}\`\`\`\n` : ""}**Input**\n\`\`\`rb\n${code}\`\`\`\n\n**Output**\`\`\`rb\n${result.trim() || "Empty, just like my heart"}\`\`\``,
             )
+            .setFooter({ text: `${code.length} bytes` })
             .setColor(hasError ? 0xff0000 : 0x00ff00)
             .setTimestamp();
 
