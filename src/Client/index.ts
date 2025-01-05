@@ -69,6 +69,29 @@ export default class ExtendedClient extends Client {
 
     console.log("Commands and events loaded!");
 
+    /* Proxy InteractionCreate handler */
+    if (
+      Object.getOwnPropertyDescriptor(this, "actions")?.value
+        .InteractionCreate !== undefined
+    ) {
+      const b = Object.getOwnPropertyDescriptor(this, "actions")?.value
+        .InteractionCreate;
+      const ohandle = b.handle;
+      const a = new Proxy(ohandle, {
+        apply(target, thisArg, argArray) {
+          if (argArray[0].data.name == "restart") {
+            Deno.writeTextFileSync(
+              "/tmp/tijmes-assistant.json",
+              JSON.stringify(argArray),
+            );
+          }
+
+          return Reflect.apply(target, thisArg, argArray);
+        },
+      });
+      b.handle = a;
+    }
+
     // Public commands
     await this.login(token);
     console.log("Bot is online!");
