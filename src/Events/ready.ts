@@ -55,7 +55,7 @@ export const event: Event = new Event({
           if (
             SnowflakeUtil.deconstruct(interaction.id).timestamp -
               BigInt(+new Date()) >
-            -(15 * 1000)
+            -(15 * 60 * 1000)
           ) {
             // interaction too old to edit
             await interaction.sendEmbed(
