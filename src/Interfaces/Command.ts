@@ -1,4 +1,7 @@
-import { SlashCommandBuilder, SlashCommandOptionsOnlyBuilder } from "npm:@discordjs/builders";
+import {
+  SlashCommandBuilder,
+  SlashCommandOptionsOnlyBuilder,
+} from "npm:@discordjs/builders";
 import {
   ActionRowBuilder,
   Attachment,
@@ -38,10 +41,9 @@ export interface CommandOptions {
   data: CommandData;
 }
 
-export type CommandData = Omit<
-  SlashCommandBuilder,
-  "addSubcommand" | "addSubcommandGroup"
-> | SlashCommandOptionsOnlyBuilder;
+export type CommandData =
+  | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
+  | SlashCommandOptionsOnlyBuilder;
 
 interface Run {
   (client: Client, command: CommandInteraction): void;
@@ -51,7 +53,11 @@ export type Category = "info" | "developer" | "fun" | "settings" | "utility";
 
 declare module "npm:discord.js" {
   interface CommandInteraction {
-    sendEmbed(options: CommandReplyEmbedOptions, edit?: boolean): Promise<InteractionResponse | void | Message>;
+    sendEmbed(
+      options: CommandReplyEmbedOptions,
+      edit?: boolean,
+    ): Promise<InteractionResponse | void | Message>;
+    options: CommandInteractionOptionResolver;
   }
 }
 
