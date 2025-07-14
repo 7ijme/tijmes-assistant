@@ -21,6 +21,8 @@ export const command = new Command({
   run: async (client, interaction) => {
     if (!interaction.isCommand()) return;
 
+    await interaction.deferReply();
+
     if (!interaction.options.get("code")?.value) return;
 
     const code = (interaction.options.get("code")?.value as string)
@@ -53,6 +55,7 @@ export const command = new Command({
         results.push(eval(code.replace("console.log", "results.push")));
       }
 
+	  if (interaction.replied) return;
       await interaction.sendEmbed({
         title: "Eval",
         description: `**Input**\n\`\`\`js\n${code}\`\`\`\n**Output**\`\`\`js\n${results

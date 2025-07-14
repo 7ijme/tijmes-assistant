@@ -125,6 +125,8 @@ CommandInteraction.prototype.sendEmbed = async function (
       button,
     );
 
+	if (this.deferred) edit = true;
+
     return await (this as CommandInteraction)[edit ? "editReply" : "reply"]({
       embeds: [
         new EmbedBuilder({
