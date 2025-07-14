@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
 import { Command } from "../../Interfaces/index.ts";
-import console, { Console } from "node:console";
 
 declare module "discord.js" {
   interface APIInteractionDataResolvedGuildMember {

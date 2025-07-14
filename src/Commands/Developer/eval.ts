@@ -55,7 +55,7 @@ export const command = new Command({
         results.push(eval(code.replace("console.log", "results.push")));
       }
 
-	  if (interaction.replied) return;
+      if (interaction.replied) return;
       await interaction.sendEmbed({
         title: "Eval",
         description: `**Input**\n\`\`\`js\n${code}\`\`\`\n**Output**\`\`\`js\n${results
