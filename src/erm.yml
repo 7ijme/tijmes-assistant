@@ -1,0 +1,17 @@
++t:
+  - "**Wat voor soort werkwoord is dit?**\nEen persoonsvorm!"
+  - "**Welke tijd heeft dit werkwoord?**\nTegenwoordige tijd!"
+  - "**Welk persoonlijk voornaamwoord hoort hierbij?**\n3e persoon enkelvoud!"
+  - "**Eindresultaat?**\nStam + t: {result}"
+vdwd:
+  - "**Wat voor soort werkwoord is dit?**\nEen voltooid deelwoord!"
+  - "**Staat de laatste letter van de wij-vorm - 'en' in 't kofschip x?**\nNee!"
+  - "**Eindresultaat?**\nVoeg een d toe: {result}"
+vdwt:
+  - "**Wat voor soort werkwoord is dit?**\nEen voltooid deelwoord!"
+  - "**Staat de laatste letter van de wij-vorm - 'en' in 't kofschip x?**\nJa!"
+  - "**Eindresultaat?**\nVoeg een t toe: {result}"
+zij:
+  - "Hè?? Dit is geen werkwoord. Ga terug en probeer het opnieuw! (Tip zei)"
+zei:
+  - "Hè?? Dit is geen goed onderwerp. Ga terug en probeer het opnieuw! (Tip zij)"
