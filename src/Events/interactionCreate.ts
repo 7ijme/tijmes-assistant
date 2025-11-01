@@ -12,6 +12,15 @@ import {
   CommandReplyEmbedOptions,
 } from "../Interfaces/index.ts";
 import Client from "../Client/index.ts";
+import {
+  getTeletekstButtons,
+  scrapeTeletext,
+  toAnsi,
+} from "../Commands/Utility/teletekst.ts";
+import { ModalBuilder, TextInputBuilder } from "npm:@discordjs/builders";
+import { TextInputStyle } from "discord.js";
+import { ButtonInteraction } from "discord.js";
+import { ModalSubmitInteraction } from "discord.js";
 
 function createDiscordTimestamp() {
   return `<t:${Math.floor(Date.now() / 1000)}:R>`;
@@ -30,6 +39,32 @@ export const event: Event = new Event({
           });
           await interaction.deleteReply();
           return;
+        }
+
+        if (interaction.customId.startsWith("tt")) {
+          if (interaction.customId.split("-")[1] == "choose") {
+            // open a modal to choose page
+            const pageInput = new TextInputBuilder()
+              .setCustomId("page")
+              .setLabel("Teletekst Page Number")
+              .setStyle(TextInputStyle.Short)
+              .setPlaceholder("Enter a page number between 100 and 899")
+              .setRequired(true);
+
+            const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
+              pageInput,
+            );
+            const modal = new ModalBuilder()
+              .setCustomId(`tt-choose-${interaction.user.id}`)
+              .setTitle("Choose Teletekst Page")
+              .addComponents(row);
+            await interaction.showModal(modal);
+
+            return;
+          }
+
+          const page = parseInt(interaction.customId.split("-")[1]);
+          updateTeletekstPage(page, interaction);
         }
 
         if (interaction.customId.startsWith("tourmin")) {
@@ -97,6 +132,23 @@ export const event: Event = new Event({
         });
       }
     }
+    if (interaction.isModalSubmit()) {
+      if (interaction.customId.includes(interaction.user.id)) {
+        if (interaction.customId.startsWith("tt-choose")) {
+          const pageInput = interaction.fields.getTextInputValue("page");
+          const pageNumber = parseInt(pageInput);
+          if (isNaN(pageNumber) || pageNumber < 100 || pageNumber > 899) {
+            interaction.reply({
+              content: "Please enter a valid page number between 100 and 899.",
+              ephemeral: true,
+            });
+            return;
+          }
+          updateTeletekstPage(pageNumber, interaction);
+        }
+      }
+    }
+
     if (!interaction.isCommand()) return;
     const { commandName } = interaction;
     const command = client.commands.find(
@@ -125,7 +177,7 @@ CommandInteraction.prototype.sendEmbed = async function (
       button,
     );
 
-	if (this.deferred) edit = true;
+    if (this.deferred) edit = true;
 
     return await (this as CommandInteraction)[edit ? "editReply" : "reply"]({
       embeds: [
@@ -168,3 +220,21 @@ CommandInteraction.prototype.sendEmbed = async function (
     return;
   }
 };
+async function updateTeletekstPage(
+  page: number,
+  interaction: ButtonInteraction | ModalSubmitInteraction,
+) {
+  const text = await scrapeTeletext(page);
+
+  const oldEmbed = interaction.message?.embeds[0];
+  const newEmbed = new EmbedBuilder()
+    .setDescription(toAnsi(text))
+    .setColor(oldEmbed?.color ?? 0x00ff00)
+    .setAuthor(oldEmbed?.author ?? { name: "" })
+    .setTimestamp(new Date());
+
+  (interaction as ButtonInteraction).update({
+    embeds: [newEmbed],
+    components: [getTeletekstButtons(page, interaction.user.id)],
+  });
+}
