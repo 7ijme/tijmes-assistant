@@ -5,6 +5,7 @@ import {
   CommandInteraction,
   EmbedBuilder,
   Interaction,
+  MessageFlags,
   ModalSubmitInteraction,
   TextInputStyle,
 } from "discord.js";
@@ -271,6 +272,14 @@ async function updateTeletekstPage(
     | SelectMenuInteraction,
 ) {
   const { text, pageData, error } = await scrapeTeletext(page, subPage);
+
+  if (error) {
+    interaction.followUp({
+      content: `Page ${page} not found. `,
+      flags: [MessageFlags.Ephemeral],
+    });
+    return;
+  }
 
   const newEmbed = new EmbedBuilder().setDescription(toAnsi(text));
 
