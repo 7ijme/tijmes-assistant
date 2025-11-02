@@ -7,11 +7,12 @@ import {
 import { Command } from "../../Interfaces/index.ts";
 import axios from "axios";
 import {
-EmbedBuilder,
+  EmbedBuilder,
   SelectMenuBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from "npm:@discordjs/builders";
+import { decode } from "npm:html-entities";
 
 export const command = new Command({
   category: "utility",
@@ -119,22 +120,24 @@ export function toAnsi(text: string) {
     "bg-magenta": "\x1b[45m",
     "bg-cyan": "\x1b[46m",
   };
-  const ansi: string = text
-    // Replace each span or <a> opening tag with color
-    .replace(/<(?:span|a)[^>]*class="([^"]+)"[^>]*>/g, (_, classes) => {
-      const appliedColors = classes
-        .split(/\s+/)
-        .map((c: Color) => colorMap[c] || "")
-        .join("");
-      return appliedColors;
-    })
-    // Replace closing tags with reset
-    .replace(/<\/(?:span|a)>/g, "\x1b[0m")
-    .replace(/<[^>]+>/g, "")
-    // Decode HTML entities like &iuml;
-    // Normalize weird unicode spacing
-    .replace(/&#x.{4};/g, " ")
-    .normalize("NFC");
+  const ansi: string = decode(
+    text
+      // Replace each span or <a> opening tag with color
+      .replace(/<(?:span|a)[^>]*class="([^"]+)"[^>]*>/g, (_, classes) => {
+        const appliedColors = classes
+          .split(/\s+/)
+          .map((c: Color) => colorMap[c] || "")
+          .join("");
+        return appliedColors;
+      })
+      // Replace closing tags with reset
+      .replace(/<\/(?:span|a)>/g, "\x1b[0m")
+      .replace(/<[^>]+>/g, "")
+      // Decode HTML entities like &iuml;
+      // Normalize weird unicode spacing
+      .replace(/&#x.{4};/g, " ")
+      .normalize("NFC"),
+  );
   // Clean up whitespace
   return "```ansi\n" + ansi + "\n```";
 }

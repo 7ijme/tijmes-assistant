@@ -7,6 +7,7 @@
     "@std/yaml": "jsr:@std/yaml@^1.0.10",
     "axios": "npm:axios@^1.13.1",
     "cheerio": "npm:cheerio@^1.1.2",
-    "discord.js": "npm:discord.js@^14.24.2"
+    "discord.js": "npm:discord.js@^14.24.2",
+    "html-entities": "npm:html-entities@^2.6.0"
   }
 }
