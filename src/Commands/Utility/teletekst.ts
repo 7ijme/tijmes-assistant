@@ -2,6 +2,7 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  MessageFlags,
   SlashCommandBuilder,
 } from "discord.js";
 import { Command } from "../../Interfaces/index.ts";
@@ -43,6 +44,13 @@ export const command = new Command({
         interaction.user.id,
       ),
     });
+
+    if (error) {
+      interaction.followUp({
+        content: `Page ${page} not found, showing page 100 instead.`,
+        flags: [MessageFlags.Ephemeral],
+      });
+    }
   },
 });
 
