@@ -52,7 +52,7 @@ export const command = new Command({
         deleteButton: !silent,
       });
     } catch {
-      interaction.sendEmbed({
+      interaction.followUp({
         content: `sadly, the site is down so i cant process your request :(`,
       });
     }
