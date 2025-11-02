@@ -35,7 +35,7 @@ export const command = new Command({
 
     // Create buttons for next and previous page
 
-    interaction.reply({
+    await interaction.reply({
       embeds: [new EmbedBuilder().setDescription(toAnsi(text))],
       components: getTeletekstButtons(
         error ? 100 : page,

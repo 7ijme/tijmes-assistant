@@ -274,7 +274,7 @@ async function updateTeletekstPage(
   const { text, pageData, error } = await scrapeTeletext(page, subPage);
 
   if (error) {
-    interaction.followUp({
+    interaction.reply({
       content: `Page ${page} not found. `,
       flags: [MessageFlags.Ephemeral],
     });
