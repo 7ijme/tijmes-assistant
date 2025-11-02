@@ -73,8 +73,6 @@ export async function scrapeTeletext(
     const text: string = data.content;
     return { text, pageData };
   } catch {
-	console.log(`Failed to fetch Teletekst page ${page}-${subPage}`);
-	
     return { ...await scrapeTeletext(100, 1), error: true };
   }
 }

@@ -30,25 +30,31 @@ export const command = new Command({
 
     interaction.deferReply({ ephemeral: silent });
 
-    const response = (
-      (await (
-        await fetch("https://ai.hackclub.com/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: `{
+    try {
+      const response = (
+        (await (
+          await fetch("https://ai.hackclub.com/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: `{
 		  "messages": [{"role": "user", "content": "${prompt}"}]
 		}`,
-        })
-      ).json()) as any
-    )?.choices?.[0]?.message?.content;
+          })
+        ).json()) as any
+      )?.choices?.[0]?.message?.content;
 
-    interaction.sendEmbed({
-      title: "AI",
-      description: `Prompt: \`${prompt}\`\n\n${response}`,
-      ephemeral: silent,
-      deleteButton: !silent,
-    });
+      interaction.sendEmbed({
+        title: "AI",
+        description: `Prompt: \`${prompt}\`\n\n${response}`,
+        ephemeral: silent,
+        deleteButton: !silent,
+      });
+    } catch {
+      interaction.sendEmbed({
+        content: `sadly, the site is down so i cant process your request :(`,
+      });
+    }
   },
 });
