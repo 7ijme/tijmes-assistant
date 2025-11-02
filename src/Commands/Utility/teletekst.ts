@@ -186,14 +186,6 @@ export function getTeletekstButtons(
       .setStyle(ButtonStyle.Secondary),
   ) as ActionRowBuilder<ButtonBuilder>;
 
-  console.log(
-    ...data.fastTextLinks.map((link) =>
-      new StringSelectMenuOptionBuilder()
-        .setLabel(link.title)
-        .setValue(`tt-${link.page}-1-${userId}`)
-        .setDescription(`Go to page ${link.page}`),
-    ),
-  );
   const secondRow = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`tt-fastlinks-${userId}`)

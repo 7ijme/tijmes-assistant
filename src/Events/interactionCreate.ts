@@ -169,7 +169,6 @@ export const event: Event = new Event({
         !interaction.customId.includes(interaction.user.id) &&
         !client.config.developers.includes(interaction.user.id)
       ) {
-        console.log(interaction.customId, interaction.user.id);
         interaction.reply({
           content: `Only the original user <@${interaction.customId.split("-").pop()}> can use this menu.`,
           ephemeral: true,
