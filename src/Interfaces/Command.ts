@@ -1,16 +1,22 @@
 import {
+  MessageActionRowComponentBuilder,
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
 } from "npm:@discordjs/builders";
 import {
   ActionRowBuilder,
+  ActionRowData,
+  APIMessageTopLevelComponent,
   Attachment,
   CommandInteraction,
   EmbedAuthorOptions,
   EmbedField,
   EmbedFooterOptions,
   EmbedImageData,
+  JSONEncodable,
+  MessageActionRowComponentData,
   MessageMentionOptions,
+  TopLevelComponentData,
 } from "npm:discord.js";
 import ExtendedClient from "../Client/index.ts";
 import Client from "../Client/index.ts";
@@ -77,7 +83,14 @@ export interface CommandReplyEmbedOptions {
   content?: string | null;
   files?: Attachment[];
   mentions?: MessageMentionOptions;
-  components?: ActionRowBuilder<ButtonBuilder>[];
+  components?: (
+    | JSONEncodable<APIMessageTopLevelComponent>
+    | TopLevelComponentData
+    | ActionRowData<
+        MessageActionRowComponentData | MessageActionRowComponentBuilder
+      >
+    | APIMessageTopLevelComponent
+  )[];
   deleteButton?: boolean;
   ephemeral?: boolean;
 }

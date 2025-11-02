@@ -1,10 +1,12 @@
 import {
-  ActionRowBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   CommandInteraction,
   EmbedBuilder,
   Interaction,
+  ModalSubmitInteraction,
+  TextInputStyle,
 } from "discord.js";
 import {
   Event,
@@ -17,10 +19,14 @@ import {
   scrapeTeletext,
   toAnsi,
 } from "../Commands/Utility/teletekst.ts";
-import { ModalBuilder, TextInputBuilder } from "npm:@discordjs/builders";
-import { TextInputStyle } from "discord.js";
-import { ButtonInteraction } from "discord.js";
-import { ModalSubmitInteraction } from "discord.js";
+import {
+  ModalBuilder,
+  TextInputBuilder,
+  ActionRowBuilder,
+  LabelBuilder,
+  ModalActionRowComponentBuilder,
+} from "npm:@discordjs/builders";
+import { SelectMenuInteraction } from "discord.js";
 
 function createDiscordTimestamp() {
   return `<t:${Math.floor(Date.now() / 1000)}:R>`;
@@ -30,7 +36,10 @@ export const event: Event = new Event({
   name: "interactionCreate",
   run: async (client, interaction: Interaction) => {
     if (interaction.isButton()) {
-      if (interaction.customId.includes(interaction.user.id)) {
+      if (
+        interaction.customId.includes(interaction.user.id) ||
+        client.config.developers.includes(interaction.user.id)
+      ) {
         if (interaction.customId.startsWith("DELETE")) {
           await interaction.update({
             content: "‎",
@@ -46,18 +55,22 @@ export const event: Event = new Event({
             // open a modal to choose page
             const pageInput = new TextInputBuilder()
               .setCustomId("page")
+              .setMinLength(3)
               .setLabel("Teletekst Page Number")
+              .setMaxLength(3)
               .setStyle(TextInputStyle.Short)
               .setPlaceholder("Enter a page number between 100 and 899")
               .setRequired(true);
 
-            const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
-              pageInput,
-            );
+            const row =
+              new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+                pageInput,
+              );
             const modal = new ModalBuilder()
               .setCustomId(`tt-choose-${interaction.user.id}`)
               .setTitle("Choose Teletekst Page")
               .addComponents(row);
+
             await interaction.showModal(modal);
 
             return;
@@ -150,6 +163,24 @@ export const event: Event = new Event({
       }
     }
 
+    if (interaction.isStringSelectMenu()) {
+      if (!interaction.customId.startsWith("tt-")) return;
+      if (
+        !interaction.customId.includes(interaction.user.id) &&
+        !client.config.developers.includes(interaction.user.id)
+      ) {
+        console.log(interaction.customId, interaction.user.id);
+        interaction.reply({
+          content: `Only the original user <@${interaction.customId.split("-").pop()}> can use this menu.`,
+          ephemeral: true,
+        });
+        return;
+      }
+      const page = parseInt(interaction.values[0]);
+      updateTeletekstPage(page, 1, interaction);
+      return;
+    }
+
     if (!interaction.isCommand()) return;
     const { commandName } = interaction;
     const command = client.commands.find(
@@ -235,7 +266,10 @@ CommandInteraction.prototype.sendEmbed = async function (
 async function updateTeletekstPage(
   page: number,
   subPage: number,
-  interaction: ButtonInteraction | ModalSubmitInteraction,
+  interaction:
+    | ButtonInteraction
+    | ModalSubmitInteraction
+    | SelectMenuInteraction,
 ) {
   const { text, pageData, error } = await scrapeTeletext(page, subPage);
 
@@ -248,13 +282,11 @@ async function updateTeletekstPage(
 
   (interaction as ButtonInteraction).update({
     embeds: [newEmbed],
-    components: [
-      getTeletekstButtons(
-        error ? 100 : page,
-        error ? 1 : subPage,
-        pageData,
-        interaction.user.id,
-      ),
-    ],
+    components: getTeletekstButtons(
+      error ? 100 : page,
+      error ? 1 : subPage,
+      pageData,
+      interaction.user.id,
+    ),
   });
 }

@@ -6,6 +6,11 @@ import {
 } from "discord.js";
 import { Command } from "../../Interfaces/index.ts";
 import axios from "axios";
+import {
+  SelectMenuBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
+} from "npm:@discordjs/builders";
 
 export const command = new Command({
   category: "utility",
@@ -33,14 +38,12 @@ export const command = new Command({
         // (text.length > 4096 - 6 ? text.slice(0, 4093 - 6) + "..." : text) +
         // "```",
         toAnsi(text),
-      components: [
-        getTeletekstButtons(
-          error ? 100 : page,
-          1,
-          pageData,
-          interaction.user.id,
-        ),
-      ],
+      components: getTeletekstButtons(
+        error ? 100 : page,
+        1,
+        pageData,
+        interaction.user.id,
+      ),
     });
   },
 });
@@ -68,12 +71,13 @@ export async function scrapeTeletext(
       nextPage: data.nextPage,
       prevSubPage: data.prevSubPage,
       nextSubPage: data.nextSubPage,
+      fastTextLinks: data.fastTextLinks,
     };
 
     const text: string = data.content;
     return { text, pageData };
   } catch {
-    return { ...await scrapeTeletext(100, 1), error: true };
+    return { ...(await scrapeTeletext(100, 1)), error: true };
   }
 }
 
@@ -143,6 +147,10 @@ type PageData = {
   nextPage: string;
   prevSubPage: string;
   nextSubPage: string;
+  fastTextLinks: {
+    title: string;
+    page: string;
+  }[];
 };
 
 export function getTeletekstButtons(
@@ -151,7 +159,7 @@ export function getTeletekstButtons(
   data: PageData,
   userId: string,
 ) {
-  const row = new ActionRowBuilder().addComponents(
+  const firstRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId(`tt-${page - 1}-1-${userId}`)
       .setEmoji("⏪")
@@ -177,5 +185,28 @@ export function getTeletekstButtons(
       .setLabel("Choose")
       .setStyle(ButtonStyle.Secondary),
   ) as ActionRowBuilder<ButtonBuilder>;
-  return row;
+
+  console.log(
+    ...data.fastTextLinks.map((link) =>
+      new StringSelectMenuOptionBuilder()
+        .setLabel(link.title)
+        .setValue(`tt-${link.page}-1-${userId}`)
+        .setDescription(`Go to page ${link.page}`),
+    ),
+  );
+  const secondRow = new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId(`tt-fastlinks-${userId}`)
+      .setPlaceholder("Fast links")
+      .addOptions(
+        ...data.fastTextLinks.map((link) =>
+          new StringSelectMenuOptionBuilder()
+            .setLabel(link.title)
+            .setValue(link.page)
+            .setDescription(`Go to page ${link.page}`),
+        ),
+      ),
+  );
+
+  return [firstRow, secondRow] as ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>[];
 }
