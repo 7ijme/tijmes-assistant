@@ -64,7 +64,8 @@ export const event: Event = new Event({
           }
 
           const page = parseInt(interaction.customId.split("-")[1]);
-          updateTeletekstPage(page, interaction);
+          const subPage = parseInt(interaction.customId.split("-")[2]);
+          updateTeletekstPage(page, subPage, interaction);
         }
 
         if (interaction.customId.startsWith("tourmin")) {
@@ -127,7 +128,7 @@ export const event: Event = new Event({
         }
       } else {
         interaction.reply({
-          content: `Only my king, <@${client.config.developers[0]}>, can use this button.`,
+          content: `Only the original user <@${interaction.customId.split("-").pop()}> can use this button.`,
           ephemeral: true,
         });
       }
@@ -144,7 +145,7 @@ export const event: Event = new Event({
             });
             return;
           }
-          updateTeletekstPage(pageNumber, interaction);
+          updateTeletekstPage(pageNumber, 1, interaction);
         }
       }
     }
@@ -156,6 +157,17 @@ export const event: Event = new Event({
     );
 
     if (!command) return;
+
+    if (
+      command.category === "developer" &&
+      !client.config.developers.includes(interaction.user.id)
+    ) {
+      interaction.reply({
+        content: `Only my king, <@${client.config.developers[0]}>, can use this button.`,
+        ephemeral: true,
+      });
+      return;
+    }
 
     (command as Command).run(client, interaction);
   },
@@ -222,9 +234,10 @@ CommandInteraction.prototype.sendEmbed = async function (
 };
 async function updateTeletekstPage(
   page: number,
+  subPage: number,
   interaction: ButtonInteraction | ModalSubmitInteraction,
 ) {
-  const text = await scrapeTeletext(page);
+  const { text, pageData, error } = await scrapeTeletext(page, subPage);
 
   const oldEmbed = interaction.message?.embeds[0];
   const newEmbed = new EmbedBuilder()
@@ -235,6 +248,13 @@ async function updateTeletekstPage(
 
   (interaction as ButtonInteraction).update({
     embeds: [newEmbed],
-    components: [getTeletekstButtons(page, interaction.user.id)],
+    components: [
+      getTeletekstButtons(
+        error ? 100 : page,
+        error ? 1 : subPage,
+        pageData,
+        interaction.user.id,
+      ),
+    ],
   });
 }

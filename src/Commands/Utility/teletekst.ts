@@ -6,8 +6,6 @@ import {
 } from "discord.js";
 import { Command } from "../../Interfaces/index.ts";
 import axios from "axios";
-import * as cheerio from "npm:cheerio";
-import { ButtonInteraction } from "discord.js";
 
 export const command = new Command({
   category: "utility",
@@ -25,7 +23,7 @@ export const command = new Command({
     ),
   run: async (_, interaction) => {
     const page = (interaction.options.get("page")?.value as number) ?? 100;
-    const text = await scrapeTeletext(page);
+    const { text, pageData, error } = await scrapeTeletext(page, 1);
 
     // Create buttons for next and previous page
 
@@ -35,28 +33,55 @@ export const command = new Command({
         // (text.length > 4096 - 6 ? text.slice(0, 4093 - 6) + "..." : text) +
         // "```",
         toAnsi(text),
-      components: [getTeletekstButtons(page, interaction.user.id)],
+      components: [
+        getTeletekstButtons(
+          error ? 100 : page,
+          1,
+          pageData,
+          interaction.user.id,
+        ),
+      ],
     });
   },
 });
-export async function scrapeTeletext(pageNumber: number) {
-  const url = `https://teletekst-data.nos.nl/webtekst?p=${pageNumber}`;
 
-  const response = await axios.get(url, {
-    headers: { "User-Agent": "TeletextScraper/1.0" },
-  });
+type ScrapeResult = {
+  text: string;
+  pageData: PageData;
+  error?: boolean;
+};
+export async function scrapeTeletext(
+  page: number,
+  subPage: number,
+): Promise<ScrapeResult> {
+  const url = `https://teletekst-data.nos.nl/json?p=${page}-${subPage}`;
 
-  const html = response.data;
-  const $ = cheerio.load(html);
+  try {
+    const response = await axios.get(url, {
+      headers: { "User-Agent": "TeletextScraper/1.0" },
+    });
 
-  // De teleteksttekst staat in <pre>
-  const content = $("pre").text();
+    const data = response.data;
 
-  return content.trim();
+    const pageData: PageData = {
+      prevPage: data.prevPage,
+      nextPage: data.nextPage,
+      prevSubPage: data.prevSubPage,
+      nextSubPage: data.nextSubPage,
+    };
+
+    const text: string = data.content;
+    return { text, pageData };
+  } catch {
+	console.log(`Failed to fetch Teletekst page ${page}-${subPage}`);
+	
+    return { ...await scrapeTeletext(100, 1), error: true };
+  }
 }
 
 // helper → find nearest ANSI color
 export function toAnsi(text: string) {
+  type Color = keyof ColorMap;
   type ColorMap = {
     black: string;
     red: string;
@@ -67,6 +92,14 @@ export function toAnsi(text: string) {
     cyan: string;
     white: string;
     reset: string;
+    "bg-blue": string;
+    "bg-white": string;
+    "bg-red": string;
+    "bg-black": string;
+    "bg-green": string;
+    "bg-yellow": string;
+    "bg-magenta": string;
+    "bg-cyan": string;
   };
   const colorMap: ColorMap = {
     black: "\u001b[30m", // black
@@ -78,70 +111,73 @@ export function toAnsi(text: string) {
     cyan: "\u001b[36m", // cyan
     white: "\u001b[37m", // white
     reset: "\u001b[0m",
+    "bg-blue": "\x1b[45m",
+    "bg-white": "\x1b[47m",
+    "bg-red": "\x1b[41m",
+    "bg-black": "\x1b[40m",
+    "bg-green": "\x1b[42m",
+    "bg-yellow": "\x1b[43m",
+    "bg-magenta": "\x1b[45m",
+    "bg-cyan": "\x1b[46m",
   };
-
-  const colors = [
-    colorMap["red"],
-    colorMap["green"],
-    colorMap["yellow"],
-    colorMap["blue"],
-  ];
-  let splitText = text.split("\n");
-  const lastLine = splitText.pop() || "";
-  const regex = /\w+\s?\w+/g;
-  const matches = lastLine?.matchAll(regex).toArray() || [];
-
-  let modified = "";
-  let lastIndex = 0;
-
-  for (const match of matches) {
-    const index = match.index;
-    const word = match[0];
-
-    // Append everything before this match + the inserted text + the match itself
-    modified +=
-      lastLine.slice(lastIndex, index) + colors[matches.indexOf(match)] + word;
-
-    // Update for next iteration
-    lastIndex = index + word.length;
-  }
-
-  splitText.push(modified || "");
-
-  splitText = splitText.map((line, i) => {
-    if (i == 0) return colorMap["yellow"] + line + colorMap["reset"];
-
-    return line;
-  });
-
-  return "```ansi\n" + splitText.join("\n") + "```";
+  const ansi: string = text
+    // Replace each span or <a> opening tag with color
+    .replace(/<(?:span|a)[^>]*class="([^"]+)"[^>]*>/g, (_, classes) => {
+      const appliedColors = classes
+        .split(/\s+/)
+        .map((c: Color) => colorMap[c] || "")
+        .join("");
+      return appliedColors;
+    })
+    // Replace closing tags with reset
+    .replace(/<\/(?:span|a)>/g, "\x1b[0m")
+    .replace(/<[^>]+>/g, "")
+    // Decode HTML entities like &iuml;
+    // Normalize weird unicode spacing
+    .replace(/&#x.{4};/g, " ")
+    .normalize("NFC");
+  // Clean up whitespace
+  return "```ansi\n" + ansi + "\n```";
 }
 
-export function getTeletekstButtons(page: number, userId: string) {
+type PageData = {
+  prevPage: string;
+  nextPage: string;
+  prevSubPage: string;
+  nextSubPage: string;
+};
+
+export function getTeletekstButtons(
+  page: number,
+  subPage: number,
+  data: PageData,
+  userId: string,
+) {
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setCustomId(`tt-${page - 1}-${userId}`)
-      .setLabel("Previous")
+      .setCustomId(`tt-${page - 1}-1-${userId}`)
+      .setEmoji("⏪")
       .setStyle(ButtonStyle.Primary)
-      .setDisabled(page <= 100),
+      .setDisabled(data.prevPage == ""),
     new ButtonBuilder()
-      .setCustomId(`tt-${page + 1}-${userId}`)
-      .setLabel("Next")
+      .setCustomId(`tt-${page}-${subPage - 1}-${userId}`)
+      .setEmoji("◀️")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(data.prevSubPage == ""),
+    new ButtonBuilder()
+      .setCustomId(`tt-${page}-${subPage + 1}-${userId}`)
+      .setEmoji("▶️")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(data.nextSubPage == ""),
+    new ButtonBuilder()
+      .setCustomId(`tt-${page + 1}-1-${userId}`)
+      .setEmoji("⏩")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(page >= 899),
-  ) as ActionRowBuilder<ButtonBuilder>;
-  if (page !== 100 && page !== 101)
-    row.addComponents(
-      new ButtonBuilder()
-        .setCustomId(`tt-100-${userId}`)
-        .setEmoji("🏠")
-        .setStyle(ButtonStyle.Secondary),
-    );
-  row.addComponents(
     new ButtonBuilder()
-      .setCustomId(`tt-choose-${userId}`)
+      .setCustomId(`tt-choose-1-${userId}`)
       .setLabel("Choose")
       .setStyle(ButtonStyle.Secondary),
-  );
+  ) as ActionRowBuilder<ButtonBuilder>;
   return row;
 }
