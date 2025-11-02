@@ -7,6 +7,7 @@ import {
 import { Command } from "../../Interfaces/index.ts";
 import axios from "axios";
 import {
+EmbedBuilder,
   SelectMenuBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -32,12 +33,8 @@ export const command = new Command({
 
     // Create buttons for next and previous page
 
-    interaction.sendEmbed({
-      description:
-        // "```" +
-        // (text.length > 4096 - 6 ? text.slice(0, 4093 - 6) + "..." : text) +
-        // "```",
-        toAnsi(text),
+    interaction.reply({
+      embeds: [new EmbedBuilder().setDescription(toAnsi(text))],
       components: getTeletekstButtons(
         error ? 100 : page,
         1,
@@ -93,7 +90,7 @@ export function toAnsi(text: string) {
     magenta: string;
     cyan: string;
     white: string;
-    reset: string;
+    // null: string;
     "bg-blue": string;
     "bg-white": string;
     "bg-red": string;
@@ -112,7 +109,7 @@ export function toAnsi(text: string) {
     magenta: "\u001b[35m", // magenta
     cyan: "\u001b[36m", // cyan
     white: "\u001b[37m", // white
-    reset: "\u001b[0m",
+    // null: "\u001b[0m",
     "bg-blue": "\x1b[45m",
     "bg-white": "\x1b[47m",
     "bg-red": "\x1b[41m",
@@ -191,14 +188,17 @@ export function getTeletekstButtons(
       .setCustomId(`tt-fastlinks-${userId}`)
       .setPlaceholder("Fast links")
       .addOptions(
-        ...data.fastTextLinks.map((link) =>
+        ...data.fastTextLinks.map((link, i) =>
           new StringSelectMenuOptionBuilder()
             .setLabel(link.title)
             .setValue(link.page)
+            .setEmoji({ name: ["🔴", "🟢", "🟡", "🔵"][i % 4] })
             .setDescription(`Go to page ${link.page}`),
         ),
       ),
   );
 
-  return [firstRow, secondRow] as ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>[];
+  return [firstRow, secondRow] as ActionRowBuilder<
+    ButtonBuilder | SelectMenuBuilder
+  >[];
 }

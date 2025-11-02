@@ -272,12 +272,7 @@ async function updateTeletekstPage(
 ) {
   const { text, pageData, error } = await scrapeTeletext(page, subPage);
 
-  const oldEmbed = interaction.message?.embeds[0];
-  const newEmbed = new EmbedBuilder()
-    .setDescription(toAnsi(text))
-    .setColor(oldEmbed?.color ?? 0x00ff00)
-    .setAuthor(oldEmbed?.author ?? { name: "" })
-    .setTimestamp(new Date());
+  const newEmbed = new EmbedBuilder().setDescription(toAnsi(text));
 
   (interaction as ButtonInteraction).update({
     embeds: [newEmbed],
