@@ -35,8 +35,16 @@ export const command = new Command({
 
     // Create buttons for next and previous page
 
+    const converter = new HTMLToANSIConverter();
+
+    const msg = converter.convert(
+      decode(text.replace(/&#x[A-Fa-f0-9]{4};/g, " ")),
+    );
+
     await interaction.reply({
-      embeds: [new EmbedBuilder().setDescription(toAnsi(text))],
+      embeds: [new EmbedBuilder().setDescription(
+		"```ansi\n" + msg + "\n```",
+	  )],
       components: getTeletekstButtons(
         error ? 100 : page,
         1,
@@ -88,66 +96,127 @@ export async function scrapeTeletext(
 }
 
 // helper → find nearest ANSI color
-export function toAnsi(text: string) {
-  type Color = keyof ColorMap;
-  type ColorMap = {
-    black: string;
-    red: string;
-    green: string;
-    yellow: string;
-    blue: string;
-    magenta: string;
-    cyan: string;
-    white: string;
-    // null: string;
-    "bg-blue": string;
-    "bg-white": string;
-    "bg-red": string;
-    "bg-black": string;
-    "bg-green": string;
-    "bg-yellow": string;
-    "bg-magenta": string;
-    "bg-cyan": string;
-  };
-  const colorMap: ColorMap = {
-    black: "\u001b[30m", // black
-    red: "\u001b[31m", // red
-    green: "\u001b[32m", // green
-    yellow: "\u001b[33m", // yellow
-    blue: "\u001b[34m", // blue
-    magenta: "\u001b[35m", // magenta
-    cyan: "\u001b[36m", // cyan
-    white: "\u001b[37m", // white
-    // null: "\u001b[0m",
-    "bg-blue": "\x1b[45m",
-    "bg-white": "\x1b[47m",
-    "bg-red": "\x1b[41m",
-    "bg-black": "\x1b[40m",
-    "bg-green": "\x1b[42m",
-    "bg-yellow": "\x1b[43m",
-    "bg-magenta": "\x1b[45m",
-    "bg-cyan": "\x1b[46m",
-  };
-  const ansi: string = decode(
-    text
-      // Replace each span or <a> opening tag with color
-      .replace(/<(?:span|a)[^>]*class="([^"]+)"[^>]*>/g, (_, classes) => {
-        const appliedColors = classes
-          .split(/\s+/)
-          .map((c: Color) => colorMap[c] || "")
-          .join("");
-        return appliedColors;
-      })
-      // Replace closing tags with reset
-      .replace(/<\/(?:span|a)>/g, "\x1b[0m")
-      .replace(/<[^>]+>/g, "")
-      // Decode HTML entities like &iuml;
-      // Normalize weird unicode spacing
-      .replace(/&#x.{4};/g, " ")
-      .normalize("NFC"),
-  );
-  // Clean up whitespace
-  return "```ansi\n" + ansi + "\n```";
+type Color = keyof ColorMap;
+type ColorMap = {
+  black: string;
+  red: string;
+  green: string;
+  yellow: string;
+  blue: string;
+  magenta: string;
+  cyan: string;
+  white: string;
+  // null: string;
+  "bg-blue": string;
+  "bg-white": string;
+  "bg-red": string;
+  "bg-black": string;
+  "bg-green": string;
+  "bg-yellow": string;
+  "bg-magenta": string;
+  "bg-cyan": string;
+};
+const colorMap: ColorMap = {
+  black: "\u001b[30m", // black
+  red: "\u001b[31m", // red
+  green: "\u001b[32m", // green
+  yellow: "\u001b[33m", // yellow
+  blue: "\u001b[34m", // blue
+  magenta: "\u001b[35m", // magenta
+  cyan: "\u001b[36m", // cyan
+  white: "\u001b[37m", // white
+  // null: "\u001b[0m",
+  "bg-blue": "\x1b[45m",
+  "bg-white": "\x1b[47m",
+  "bg-red": "\x1b[41m",
+  "bg-black": "\x1b[40m",
+  "bg-green": "\x1b[42m",
+  "bg-yellow": "\x1b[43m",
+  "bg-magenta": "\x1b[45m",
+  "bg-cyan": "\x1b[46m",
+};
+export class HTMLToANSIConverter {
+  private ansiMap: ColorMap & { [key: string]: string };
+  private resetCode = "\u001b[0m";
+
+  constructor() {
+    // Start with the color map and add any additional styles
+    this.ansiMap = {
+      ...colorMap,
+      // You can add non-color styles here if needed
+      // bold: "\x1b[1m",
+      // underline: "\x1b[4m",
+    };
+  }
+
+  convert(html: string): string {
+    const stack: string[] = [];
+    let output = "";
+    let i = 0;
+
+    while (i < html.length) {
+      if (html[i] === "<" && html[i + 1] !== "/") {
+        // Opening span tag
+        const tagEnd = html.indexOf(">", i);
+        if (tagEnd === -1) break;
+
+        const tagContent = html.substring(i + 1, tagEnd);
+
+        if (tagContent.startsWith("span") || tagContent.startsWith("a")) {
+          const classes = this.extractClasses(tagContent);
+          const ansiCodes = this.classesToANSI(classes);
+          stack.push(ansiCodes);
+          output += ansiCodes;
+        }
+
+        i = tagEnd + 1;
+      } else if (html[i] === "<" && html[i + 1] === "/") {
+        // Closing span tag
+        const tagEnd = html.indexOf(">", i);
+        if (tagEnd === -1) break;
+
+        if (stack.length > 0) {
+          output += this.resetCode;
+          stack.pop();
+          // Reapply previous styles from stack
+          if (stack.length > 0) {
+            output += stack[stack.length - 1];
+          }
+        }
+        i = tagEnd + 1;
+      } else {
+        // Text content
+        const textEnd = html.indexOf("<", i);
+        if (textEnd === -1) {
+          output += html.substring(i);
+          break;
+        }
+        output += html.substring(i, textEnd);
+        i = textEnd;
+      }
+    }
+
+    // Ensure we reset at the end if there are any remaining styles
+    if (stack.length > 0) {
+      output += this.resetCode;
+    }
+
+    return output;
+  }
+
+  private extractClasses(tagContent: string): string[] {
+    const classMatch = tagContent.match(/class="([^"]*)"/);
+    return classMatch
+      ? classMatch[1].split(" ").filter((cls: string) => cls.trim())
+      : [];
+  }
+
+  private classesToANSI(classes: string[]): string {
+    return classes
+      .map((cls) => this.ansiMap[cls as Color])
+      .filter(Boolean)
+      .join("");
+  }
 }
 
 type PageData = {

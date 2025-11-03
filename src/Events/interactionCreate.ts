@@ -18,7 +18,7 @@ import Client from "../Client/index.ts";
 import {
   getTeletekstButtons,
   scrapeTeletext,
-  toAnsi,
+  HTMLToANSIConverter,
 } from "../Commands/Utility/teletekst.ts";
 import {
   ModalBuilder,
@@ -28,6 +28,7 @@ import {
   ModalActionRowComponentBuilder,
 } from "npm:@discordjs/builders";
 import { SelectMenuInteraction } from "discord.js";
+import { decode } from "html-entities";
 
 function createDiscordTimestamp() {
   return `<t:${Math.floor(Date.now() / 1000)}:R>`;
@@ -281,7 +282,15 @@ async function updateTeletekstPage(
     return;
   }
 
-  const newEmbed = new EmbedBuilder().setDescription(toAnsi(text));
+  const converter = new HTMLToANSIConverter();
+
+  const msg = converter.convert(
+    decode(text.replace(/&#x[A-Fa-f0-9]{4};/g, " ")),
+  );
+
+  const newEmbed = new EmbedBuilder().setDescription(
+    "```ansi\n" + msg + "\n```",
+  );
 
   (interaction as ButtonInteraction).update({
     embeds: [newEmbed],
