@@ -143,7 +143,7 @@ export const event: Event = new Event({
       } else {
         interaction.reply({
           content: `Only the original user <@${interaction.customId.split("-").pop()}> can use this button.`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     }
@@ -155,7 +155,7 @@ export const event: Event = new Event({
           if (isNaN(pageNumber) || pageNumber < 100 || pageNumber > 899) {
             interaction.reply({
               content: "Please enter a valid page number between 100 and 899.",
-              ephemeral: true,
+              flags: MessageFlags.Ephemeral,
             });
             return;
           }
@@ -172,7 +172,7 @@ export const event: Event = new Event({
       ) {
         interaction.reply({
           content: `Only the original user <@${interaction.customId.split("-").pop()}> can use this menu.`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -195,7 +195,7 @@ export const event: Event = new Event({
     ) {
       interaction.reply({
         content: `Only my king, <@${client.config.developers[0]}>, can use this button.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -222,7 +222,7 @@ CommandInteraction.prototype.sendEmbed = async function (
 
     if (this.deferred) edit = true;
 
-    return await (this as CommandInteraction)[edit ? "editReply" : "reply"]({
+    const baseOptions = {
       embeds: [
         new EmbedBuilder({
           title: options.title || "",
@@ -256,8 +256,19 @@ CommandInteraction.prototype.sendEmbed = async function (
       content: options.content || "",
       files: options.files,
       allowedMentions: options.mentions || { repliedUser: false },
-      ephemeral: options.ephemeral || false,
-    });
+    };
+    if (edit) {
+      return await (this as CommandInteraction).editReply(baseOptions as any);
+    } else {
+      const replyOptions = {
+        ...baseOptions,
+        flags:
+          this.ephemeral || options.ephemeral
+            ? MessageFlags.Ephemeral
+            : undefined,
+      };
+      return await (this as CommandInteraction).reply(replyOptions as any);
+    }
   } catch (e) {
     console.log(e);
     return;
@@ -276,7 +287,7 @@ async function updateTeletekstPage(
   if (error) {
     interaction.reply({
       content: `Page ${page} not found. `,
-      flags: [MessageFlags.Ephemeral],
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }

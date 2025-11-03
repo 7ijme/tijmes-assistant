@@ -64,7 +64,7 @@ export const command = new Command({
       fields.push(
         {
           name: "Joined At",
-          value: `<t:${Math.floor(new Date(member?.joined_at).getTime() / 1000)}:R>`,
+          value: `<t:${Math.floor(new Date(member?.joined_at ?? "Jan 1 0000").getTime() / 1000)}:R>`,
           inline: true,
         },
         {

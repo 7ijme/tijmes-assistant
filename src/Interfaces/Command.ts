@@ -62,7 +62,7 @@ declare module "npm:discord.js" {
     sendEmbed(
       options: CommandReplyEmbedOptions,
       edit?: boolean,
-    ): Promise<InteractionResponse | void | Message>;
+    ): Promise<InteractionCallbackResponse | void | Message>;
     options: CommandInteractionOptionResolver;
   }
 }

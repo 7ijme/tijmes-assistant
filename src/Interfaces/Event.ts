@@ -1,3 +1,4 @@
+import ExtendedClient from "../Client/index.ts";
 import Client from "../Client/index.ts";
 import { ClientEvents } from "npm:discord.js";
 
@@ -14,8 +15,8 @@ export class Event {
     this.run = run;
   }
 
-  public async init(client: Client) {
+  public async init(client: ExtendedClient) {
     client.events.set(this.name, this);
-    client.on(this.name, this.run.bind(null, this));
+    client.on(this.name, this.run.bind(null, client));
   }
 }
