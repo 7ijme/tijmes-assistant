@@ -20,6 +20,7 @@ import {
   getTeletekstButtons,
   scrapeTeletext,
   HTMLToANSIConverter,
+  convertTeletextToBraille,
 } from "../Commands/Utility/teletekst.ts";
 import {
   ModalBuilder,
@@ -294,13 +295,13 @@ async function updateTeletekstPage(
 
   const converter = new HTMLToANSIConverter();
 
-  const msg = converter.convert(
-    decode(text.replace(/&#x[A-Fa-f0-9]{4};/g, " ")),
-  );
+  const msg = converter.convert(convertTeletextToBraille(text));
 
   const newEmbed = new EmbedBuilder().setDescription(
     "```ansi\n" + msg + "\n```",
   );
+
+  const userId = interaction.customId?.split("-").pop() ?? interaction.user.id;
 
   (interaction as ButtonInteraction).update({
     embeds: [newEmbed],
@@ -308,7 +309,7 @@ async function updateTeletekstPage(
       error ? 100 : page,
       error ? 1 : subPage,
       pageData,
-      interaction.user.id,
+      userId,
     ),
   });
 }
