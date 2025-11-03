@@ -28,6 +28,12 @@ export const command = new Command({
         .setMinValue(100)
         .setMaxValue(899)
         .setRequired(false),
+    )
+    .addBooleanOption((option) =>
+      option
+        .setName("silent")
+        .setDescription("Whether the bot should respond silently")
+        .setRequired(false),
     ),
   run: async (_, interaction) => {
     const page = (interaction.options.get("page")?.value as number) ?? 100;
@@ -42,15 +48,17 @@ export const command = new Command({
     );
 
     await interaction.reply({
-      embeds: [new EmbedBuilder().setDescription(
-		"```ansi\n" + msg + "\n```",
-	  )],
+      embeds: [new EmbedBuilder().setDescription("```ansi\n" + msg + "\n```")],
       components: getTeletekstButtons(
         error ? 100 : page,
         1,
         pageData,
         interaction.user.id,
       ),
+      flags:
+        (interaction.options.get("silent")?.value ?? (false as boolean))
+          ? [MessageFlags.Ephemeral]
+          : [],
     });
 
     if (error) {

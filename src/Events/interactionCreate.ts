@@ -1,4 +1,5 @@
 import {
+  AnySelectMenuInteraction,
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
@@ -24,10 +25,8 @@ import {
   ModalBuilder,
   TextInputBuilder,
   ActionRowBuilder,
-  LabelBuilder,
   ModalActionRowComponentBuilder,
 } from "npm:@discordjs/builders";
-import { SelectMenuInteraction } from "discord.js";
 import { decode } from "html-entities";
 
 function createDiscordTimestamp() {
@@ -270,7 +269,7 @@ async function updateTeletekstPage(
   interaction:
     | ButtonInteraction
     | ModalSubmitInteraction
-    | SelectMenuInteraction,
+    | AnySelectMenuInteraction,
 ) {
   const { text, pageData, error } = await scrapeTeletext(page, subPage);
 
