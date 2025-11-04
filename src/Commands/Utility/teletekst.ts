@@ -348,15 +348,20 @@ export function getTeletekstButtons(
             .setDescription(`Go to page ${link.page}`),
         ),
         ...links
-
           .filter(
             (link) =>
               !data.fastTextLinks.some((ftl) => ftl.page === link.page) &&
               page != parseInt(link.page) &&
               link.description.length > 1,
           )
+          .slice(0, 21)
           .reduce((acc, link) => {
-            if (!acc.some((l) => l.page == link.page)) acc.push(link);
+            if (
+              !acc.some(
+                (l) => l.page == link.page || l.description == link.description,
+              )
+            )
+              acc.push(link);
             return acc;
           }, [] as TeleLink[])
           .map((link, _) =>
