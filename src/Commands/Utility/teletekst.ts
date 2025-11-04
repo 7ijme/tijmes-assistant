@@ -335,7 +335,6 @@ export function getTeletekstButtons(
       .setStyle(ButtonStyle.Secondary),
   ) as ActionRowBuilder<ButtonBuilder>;
 
-  console.log(links);
   const secondRow = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`tt-fastlinks-${userId}`)
