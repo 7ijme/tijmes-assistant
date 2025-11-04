@@ -226,7 +226,6 @@ export class HTMLToANSIConverter {
                     html.substring(0, prevTagEnd - 1).lastIndexOf("<"),
                   )
                   .trim();
-                console.log("Found empty description, using:", description);
               }
 
               links.push({
