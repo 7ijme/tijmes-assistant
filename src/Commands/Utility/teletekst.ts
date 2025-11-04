@@ -1,8 +1,11 @@
 import {
   ActionRowBuilder,
+  AnySelectMenuInteraction,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   MessageFlags,
+  ModalSubmitInteraction,
   SlashCommandBuilder,
 } from "discord.js";
 import { Command } from "../../Interfaces/index.ts";
@@ -43,7 +46,7 @@ export const command = new Command({
 
     const converter = new HTMLToANSIConverter();
 
-    const msg = converter.convert(convertTeletextToBraille(text));
+    const msg = converter.convert(decode(convertTeletextToBraille(text)));
 
     await interaction.reply({
       embeds: [new EmbedBuilder().setDescription("```ansi\n" + msg + "\n```")],
@@ -313,4 +316,43 @@ export function getTeletekstButtons(
   return [firstRow, secondRow] as ActionRowBuilder<
     ButtonBuilder | SelectMenuBuilder
   >[];
+}
+
+export async function updateTeletekstPage(
+  page: number,
+  subPage: number,
+  interaction:
+    | ButtonInteraction
+    | ModalSubmitInteraction
+    | AnySelectMenuInteraction,
+) {
+  const { text, pageData, error } = await scrapeTeletext(page, subPage);
+
+  if (error) {
+    interaction.reply({
+      content: `Page ${page} not found. `,
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  const converter = new HTMLToANSIConverter();
+
+  const msg = converter.convert(decode(convertTeletextToBraille(text)));
+
+  const newEmbed = new EmbedBuilder().setDescription(
+    "```ansi\n" + msg + "\n```",
+  );
+
+  const userId = interaction.customId?.split("-").pop() ?? interaction.user.id;
+
+  (interaction as ButtonInteraction).update({
+    embeds: [newEmbed],
+    components: getTeletekstButtons(
+      error ? 100 : page,
+      error ? 1 : subPage,
+      pageData,
+      userId,
+    ),
+  });
 }

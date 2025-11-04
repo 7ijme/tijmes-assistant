@@ -21,6 +21,7 @@ import {
   scrapeTeletext,
   HTMLToANSIConverter,
   convertTeletextToBraille,
+  updateTeletekstPage,
 } from "../Commands/Utility/teletekst.ts";
 import {
   ModalBuilder,
@@ -275,41 +276,3 @@ CommandInteraction.prototype.sendEmbed = async function (
     return;
   }
 };
-async function updateTeletekstPage(
-  page: number,
-  subPage: number,
-  interaction:
-    | ButtonInteraction
-    | ModalSubmitInteraction
-    | AnySelectMenuInteraction,
-) {
-  const { text, pageData, error } = await scrapeTeletext(page, subPage);
-
-  if (error) {
-    interaction.reply({
-      content: `Page ${page} not found. `,
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
-  }
-
-  const converter = new HTMLToANSIConverter();
-
-  const msg = converter.convert(convertTeletextToBraille(text));
-
-  const newEmbed = new EmbedBuilder().setDescription(
-    "```ansi\n" + msg + "\n```",
-  );
-
-  const userId = interaction.customId?.split("-").pop() ?? interaction.user.id;
-
-  (interaction as ButtonInteraction).update({
-    embeds: [newEmbed],
-    components: getTeletekstButtons(
-      error ? 100 : page,
-      error ? 1 : subPage,
-      pageData,
-      userId,
-    ),
-  });
-}
