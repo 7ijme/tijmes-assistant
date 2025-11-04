@@ -17,6 +17,7 @@ import {
   StringSelectMenuOptionBuilder,
 } from "npm:@discordjs/builders";
 import { decode } from "npm:html-entities";
+import { argv0 } from "node:process";
 
 export const command = new Command({
   category: "utility",
@@ -46,14 +47,19 @@ export const command = new Command({
 
     const converter = new HTMLToANSIConverter();
 
-    const msg = converter.convert(decode(convertTeletextToBraille(text)));
+    const { output, links } = converter.convert(
+      decode(convertTeletextToBraille(text)),
+    );
 
     await interaction.reply({
-      embeds: [new EmbedBuilder().setDescription("```ansi\n" + msg + "\n```")],
+      embeds: [
+        new EmbedBuilder().setDescription("```ansi\n" + output + "\n```"),
+      ],
       components: getTeletekstButtons(
         error ? 100 : page,
         1,
         pageData,
+        links,
         interaction.user.id,
       ),
       flags:
@@ -170,6 +176,7 @@ const colorMap: ColorMap = {
   "bg-magenta": "\x1b[45m",
   "bg-cyan": "\x1b[46m",
 };
+type TeleLink = { page: string; description: string };
 export class HTMLToANSIConverter {
   private ansiMap: ColorMap & { [key: string]: string };
   private resetCode = "\u001b[0m";
@@ -183,11 +190,11 @@ export class HTMLToANSIConverter {
       // underline: "\x1b[4m",
     };
   }
-
-  convert(html: string): string {
+  convert(html: string): { output: string; links: TeleLink[] } {
     const stack: string[] = [];
     let output = "";
     let i = 0;
+    const links: TeleLink[] = [];
 
     while (i < html.length) {
       if (html[i] === "<" && html[i + 1] !== "/") {
@@ -200,6 +207,35 @@ export class HTMLToANSIConverter {
         if (tagContent.startsWith("span") || tagContent.startsWith("a")) {
           const classes = this.extractClasses(tagContent);
           const ansiCodes = this.classesToANSI(classes);
+
+          if (tagContent.startsWith("a")) {
+            const hrefMatch = tagContent.match(/href="([^"]*)"/);
+            if (hrefMatch) {
+              let description = html
+                .substring(html.substring(0, i).lastIndexOf(">") + 1, i)
+                .trim();
+
+              if (description.length === 0) {
+                // look one tag further back
+                const prevTagEnd = html
+                  .substring(0, html.substring(0, i).lastIndexOf(">"))
+                  .lastIndexOf(">");
+                description = html
+                  .substring(
+                    html.substring(0, prevTagEnd - 1).lastIndexOf(">") + 1,
+                    html.substring(0, prevTagEnd - 1).lastIndexOf("<"),
+                  )
+                  .trim();
+                console.log("Found empty description, using:", description);
+              }
+
+              links.push({
+                page: hrefMatch[1].replace(/^#/, ""),
+                description: description.length > 1 ? description : "",
+              });
+            }
+          }
+
           stack.push(ansiCodes);
           output += ansiCodes;
         }
@@ -236,7 +272,7 @@ export class HTMLToANSIConverter {
       output += this.resetCode;
     }
 
-    return output;
+    return { output, links };
   }
 
   private extractClasses(tagContent: string): string[] {
@@ -269,11 +305,12 @@ export function getTeletekstButtons(
   page: number,
   subPage: number,
   data: PageData,
+  links: TeleLink[],
   userId: string,
 ) {
   const firstRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setCustomId(`tt-${page - 1}-1-${userId}`)
+      .setCustomId(`tt-${data.prevPage}-1-${userId}`)
       .setEmoji("⏪")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(data.prevPage == ""),
@@ -288,16 +325,17 @@ export function getTeletekstButtons(
       .setStyle(ButtonStyle.Primary)
       .setDisabled(data.nextSubPage == ""),
     new ButtonBuilder()
-      .setCustomId(`tt-${page + 1}-1-${userId}`)
+      .setCustomId(`tt-${data.nextPage}-1-${userId}`)
       .setEmoji("⏩")
       .setStyle(ButtonStyle.Primary)
-      .setDisabled(page >= 899),
+      .setDisabled(data.nextPage == ""),
     new ButtonBuilder()
       .setCustomId(`tt-choose-1-${userId}`)
       .setLabel("Choose")
       .setStyle(ButtonStyle.Secondary),
   ) as ActionRowBuilder<ButtonBuilder>;
 
+  console.log(links);
   const secondRow = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`tt-fastlinks-${userId}`)
@@ -310,6 +348,29 @@ export function getTeletekstButtons(
             .setEmoji({ name: ["🔴", "🟢", "🟡", "🔵"][i % 4] })
             .setDescription(`Go to page ${link.page}`),
         ),
+        ...links
+
+          .filter(
+            (link) =>
+              !data.fastTextLinks.some((ftl) => ftl.page === link.page) &&
+              page != parseInt(link.page) &&
+              link.description.length > 1,
+          )
+          .reduce((acc, link) => {
+            if (!acc.some((l) => l.page == link.page)) acc.push(link);
+            return acc;
+          }, [] as TeleLink[])
+          .map((link, _) =>
+            // remove # at start of link
+            new StringSelectMenuOptionBuilder()
+              .setLabel(link.page)
+              .setValue(link.page)
+              .setDescription(
+                link.description.length > 50
+                  ? link.description.slice(0, 47) + "..."
+                  : link.description,
+              ),
+          ),
       ),
   );
 
@@ -338,10 +399,12 @@ export async function updateTeletekstPage(
 
   const converter = new HTMLToANSIConverter();
 
-  const msg = converter.convert(decode(convertTeletextToBraille(text)));
+  const { output, links } = converter.convert(
+    decode(convertTeletextToBraille(text)),
+  );
 
   const newEmbed = new EmbedBuilder().setDescription(
-    "```ansi\n" + msg + "\n```",
+    "```ansi\n" + output + "\n```",
   );
 
   const userId = interaction.customId?.split("-").pop() ?? interaction.user.id;
@@ -352,6 +415,7 @@ export async function updateTeletekstPage(
       error ? 100 : page,
       error ? 1 : subPage,
       pageData,
+      links,
       userId,
     ),
   });
