@@ -335,17 +335,19 @@ export function getTeletekstButtons(
   ) as ActionRowBuilder<ButtonBuilder>;
 
   const secondRow = new ActionRowBuilder().addComponents(
+    ...data.fastTextLinks.map((link, i) =>
+      new ButtonBuilder()
+        .setEmoji({ name: ["🔴", "🟢", "🟡", "🔵"][i % 4] })
+        .setStyle(ButtonStyle.Secondary)
+        .setCustomId(`tt-${link.page}-1-${userId}`),
+    ),
+  );
+
+  const thirdRow = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`tt-fastlinks-${userId}`)
       .setPlaceholder("Fast links")
       .addOptions(
-        ...data.fastTextLinks.map((link, i) =>
-          new StringSelectMenuOptionBuilder()
-            .setLabel(link.title)
-            .setValue(link.page)
-            .setEmoji({ name: ["🔴", "🟢", "🟡", "🔵"][i % 4] })
-            .setDescription(`Go to page ${link.page}`),
-        ),
         ...links
           .filter(
             (link) =>
@@ -377,7 +379,7 @@ export function getTeletekstButtons(
       ),
   );
 
-  return [firstRow, secondRow] as ActionRowBuilder<
+  return [firstRow, secondRow, thirdRow] as ActionRowBuilder<
     ButtonBuilder | SelectMenuBuilder
   >[];
 }
