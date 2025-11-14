@@ -17,7 +17,6 @@ import {
   StringSelectMenuOptionBuilder,
 } from "npm:@discordjs/builders";
 import { decode } from "npm:html-entities";
-import { argv0 } from "node:process";
 
 export const command = new Command({
   category: "utility",
@@ -357,7 +356,6 @@ export function getTeletekstButtons(
           )
           .slice(0, 25)
           .reduce((acc, link) => {
-			console.log(acc, link);
             if (
               !acc.some(
                 (l) => l.page == link.page || l.description == link.description,
@@ -380,9 +378,13 @@ export function getTeletekstButtons(
       ),
   );
 
-  return [firstRow, secondRow, thirdRow] as ActionRowBuilder<
+  const rows = [firstRow, secondRow] as ActionRowBuilder<
     ButtonBuilder | SelectMenuBuilder
   >[];
+  if (data.fastTextLinks.length > 0)
+    rows.push(thirdRow as ActionRowBuilder<ButtonBuilder>);
+
+  return rows;
 }
 
 export async function updateTeletekstPage(
