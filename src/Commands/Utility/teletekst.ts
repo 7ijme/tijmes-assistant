@@ -355,8 +355,9 @@ export function getTeletekstButtons(
               page != parseInt(link.page) &&
               link.description.length > 1,
           )
-          .slice(0, 21)
+          .slice(0, 25)
           .reduce((acc, link) => {
+			console.log(acc, link);
             if (
               !acc.some(
                 (l) => l.page == link.page || l.description == link.description,
