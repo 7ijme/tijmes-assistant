@@ -339,7 +339,7 @@ export function getTeletekstButtons(
       new ButtonBuilder()
         .setEmoji({ name: ["🔴", "🟢", "🟡", "🔵"][i % 4] })
         .setStyle(ButtonStyle.Secondary)
-        .setCustomId(`tt-${link.page}-1-${userId}`),
+        .setCustomId(`tt-${link.page}-1-extra-${userId}`),
     ),
   );
 
